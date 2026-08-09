@@ -1443,14 +1443,9 @@ Do not assume push capability.
 
 # 149. Real-time UI
 
-Notification Center MAY use:
+Notification Center baseline uses bounded polling/server refresh with backoff and terminal/visibility-aware stop conditions.
 
-- polling;
-- SSE;
-- websocket;
-- server refresh;
-
-implementation choice.
+SSE/WebSocket are not baseline dependencies and require a future measured-need ADR. Realtime transport never changes notification semantics.
 
 ---
 

@@ -22,7 +22,7 @@
 - `docs/ux/forms-and-validation.md`
 - `docs/ux/ui-states.md`
 - `docs/domain/domain-model.md`
-- `docs/domain/relationships.md`
+- `docs/domain/entity-relationships.md`
 
 ---
 

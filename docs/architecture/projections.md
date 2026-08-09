@@ -26,9 +26,9 @@
 - `docs/ux/public-questionnaire-builder.md`
 - `docs/ux/content-hierarchy.md`
 - `docs/domain/domain-model.md`
-- `docs/domain/relationships.md`
+- `docs/domain/entity-relationships.md`
 - `docs/domain/data-ownership.md`
-- `docs/domain/revisions.md`
+- `docs/domain/revisions-and-history.md`
 - `docs/architecture/architecture-overview.md`
 - `docs/architecture/components.md`
 - `docs/architecture/data-flows.md`

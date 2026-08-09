@@ -537,3 +537,7 @@ Codex MUST NOT:
 ## 29. Финальная доктрина
 
 > **Codex should treat this documentation as an executable architecture contract, but treat the repository as evidence of current state. It audits first, implements foundations before dependents, keeps manual workflows independent from AI/providers, couples every change to migrations/tests/traceability and refuses to invent missing data or authority simply to make a feature appear complete.**
+
+## Enterprise campaign wrapper
+
+For full-platform implementation, DOC-225 is the direct master task and this DOC-223 provides its detailed phase playbook. DOC-208 supplies the concrete technology stack; Codex MUST NOT choose a different ORM/queue/search/storage/styling/test stack merely because an older document contains an “or equivalent” example. The actual repository is still audited first, then legacy technology converges to DOC-208.

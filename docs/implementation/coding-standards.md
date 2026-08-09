@@ -226,3 +226,7 @@ Forbidden:
 ## 39. Финальная доктрина
 
 > **Coding standards make the architecture executable: strict types expose uncertainty, runtime schemas validate trust boundaries, named commands expose side effects, immutable types protect history and provider/filesystem/database concerns remain behind narrow server-only adapters.**
+
+## Canonical toolchain binding
+
+DOC-208 resolves generic technology alternatives: Zod is the runtime schema layer; Pino is the structured logger; OpenTelemetry is the telemetry API/SDK; pnpm is the package manager; ESLint + Prettier are the lint/format baseline; Vitest and Playwright are the canonical automated test frameworks. Equivalent examples in older documents do not authorize a parallel production toolchain.

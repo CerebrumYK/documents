@@ -1,449 +1,548 @@
 # GAP ANALYSIS
+## DOC-231 — current Enterprise implementation and evidence gap register
 
-> **Repository-presence status note (2026-08-09):** statements in this historical audit about DOC-001…134 being unavailable/not imported are superseded by DOC-236 `docs/final/canonical-import-verification.md`. Canonical import is complete; implementation remains evidence-gated.
-
-## DOC-231 — repository, specification, implementation and operational gap classification
-
-**Статус:** Canonical / Final Gap Register
+**Статус:** Canonical / Current Gap Register  
+**Дата актуализации:** 2026-08-09
 
 ---
 
-## 1. Назначение
+# 1. Назначение
 
-Документ фиксирует известные gaps после автоматической генерации remaining documentation package и определяет, какие gaps являются repository-content gaps, какие требуют actual website-code audit, а какие являются будущей implementation работой.
+Документ фиксирует **текущие** gaps после canonical import и Enterprise consistency reconciliation.
 
-> **A gap is not silently filled with assumptions. It is classified, assigned a resolution path and kept distinct from a defect in already implemented behavior.**
+> **The documentation-import gap is closed. Current gaps are implementation, migration, runtime, provider and operational evidence gaps unless explicitly stated otherwise.**
 
 ---
 
-## 2. Gap classes
+# 2. Gap classes
 
 ```text
-DOC_MISSING
-DOC_STALE_REFERENCE
-DOC_CONFLICT
 IMPLEMENTATION_UNKNOWN
 IMPLEMENTATION_MISSING
-TEST_MISSING
+LEGACY_CONFLICT
 MIGRATION_UNKNOWN
-OPERATIONS_UNKNOWN
-SECURITY_UNKNOWN
 DATA_AMBIGUITY
-PROVIDER_DEPENDENCY
+TEST_MISSING
+SECURITY_UNKNOWN
+OPERATIONS_UNKNOWN
+PROVIDER_EVIDENCE_MISSING
+INTERFACE_INTEGRATION_UNKNOWN
+TRACEABILITY_MISSING
+ENVIRONMENT_DECISION_REQUIRED
 NON_BASELINE_FUTURE
 ```
 
-## 3. Current highest-priority repository gap
-
-### GAP-DOC-001 — Earlier canonical documents are not physically present
-
-**Class:** `DOC_MISSING`  
-**Severity:** High for standalone documentation-repository completeness; not a contradiction in remaining docs.
-
-Missing physical files include project documents authored before this repository was initialized:
-
-```text
-DOC-001
-DOC-010…015
-DOC-020…030
-DOC-040…050
-DOC-060…064
-DOC-070…080
-DOC-090…094
-DOC-100…103
-DOC-110…134
-```
-
-### Resolution
-
-Import those existing authored project documents into their canonical paths, or formally supersede them through an approved consolidated source-of-truth decision.
-
-### Guardrail
-
-Do not regenerate approximate versions and present them as byte-identical originals without explicit decision; preserve project-authored semantics.
+`DOC_MISSING` is not a current baseline gap for canonical project families.
 
 ---
 
-## 4. GAP-DOC-002 — Known stale related-document paths in earlier docs
+# 3. Resolved documentation gaps
 
-**Class:** `DOC_STALE_REFERENCE`  
-**Severity:** Medium.
-
-Known aliases likely needing correction after import:
+Resolved:
 
 ```text
-database-schema.md
-visibility-model.md
-validation-rules.md
-deletion-retention.md
+DOC-001 / DOC-010…134 canonical import
+canonical path aliases
+source provenance
+DOC identity metadata
+single implementation technology selection
+Enterprise Codex master task
 ```
 
-Canonical targets:
+Authority:
 
-```text
-database-architecture.md
-visibility-and-access.md
-validation-and-constraints.md
-deletion-and-retention.md
-```
-
-### Resolution
-
-Run repository-wide Markdown link/path audit after DOC-001…134 import.
+- DOC-236 — canonical import verification;
+- DOC-208 — unified production technology stack;
+- DOC-225 — Enterprise execution task;
+- DOC-237 — current consistency audit.
 
 ---
 
-## 5. GAP-IMP-001 — Website implementation repository not audited by this documentation operation
+# 4. GAP-IMP-001 — Actual application repository must be audited
 
 **Class:** `IMPLEMENTATION_UNKNOWN`  
-**Severity:** Critical for claiming product completion, zero impact on documentation-generation completion.
+**Severity:** P0.
 
-The current repository is documentation-only. No evidence in this operation proves the actual actress website code implements DOC-140+ or earlier module specifications.
+The documentation repository does not prove the actual site implementation.
 
-### Resolution
+Required evidence:
 
-Run DOC-223 Phase 0 against the actual implementation repository, then populate DOC-232 with code/migration/test paths.
-
----
-
-## 6. GAP-IMP-002 — Existing database/schema compatibility unknown
-
-**Class:** `IMPLEMENTATION_UNKNOWN / MIGRATION_UNKNOWN`.
-
-Need actual audit of:
-
-- PostgreSQL schema;
-- current migrations;
-- legacy tables;
-- existing IDs/visibility flags;
-- revisions/history;
-- outbox/jobs;
-- stored media references.
+- repository tree;
+- runtime/package versions;
+- routes/actions;
+- DB schema/migrations;
+- storage;
+- auth;
+- providers;
+- jobs;
+- tests/CI;
+- deployment.
 
 ### Resolution
 
-DOC-161 inventory + DOC-162 migration mapping against actual implementation.
+DOC-225 Phase 0.
 
 ---
 
-## 7. GAP-DATA-001 — Legacy professional-data ambiguity cannot be resolved from documentation alone
+# 5. GAP-STACK-001 — Existing application may use non-canonical technology
 
-**Class:** `DATA_AMBIGUITY`.
+**Class:** `LEGACY_CONFLICT / IMPLEMENTATION_UNKNOWN`  
+**Severity:** P0 when discovered.
 
-Potential ambiguity families:
+Target is DOC-208.
 
-- free-text Skill level;
-- qualitative Language proficiency;
-- legacy Project `Other` vs Training;
-- recognition/Achievement wording;
-- public/Builder/QNR permissions;
-- notification-recipient/public-contact coupling;
-- AI-generated vs Human-confirmed Casting requirements.
-
-### Resolution
-
-Inventory actual records and generate Human review queue. Never infer values only to satisfy target schema.
-
----
-
-## 8. GAP-SEC-001 — Current authentication implementation unknown
-
-**Class:** `SECURITY_UNKNOWN`  
-**Severity:** Critical for production.
-
-Need verify:
-
-- session storage/cookies;
-- password/recovery;
-- authorization checks;
-- CSRF;
-- Admin route protection;
-- MFA readiness.
-
-### Resolution
-
-DOC-223 Phase 1 + DOC-174 security tests.
-
----
-
-## 9. GAP-SEC-002 — Current public serialization/visibility leakage unknown
-
-Need inspect raw RSC/API/public JSON for hidden Contacts/Skills/Languages/media/admin state.
-
-### Resolution
-
-Public projection refactor + raw-response negative security tests.
-
----
-
-## 10. GAP-SEC-003 — Upload/SSRF/provider-secret implementation unknown
-
-Need audit:
-
-- upload MIME/magic validation;
-- SVG policy;
-- storage paths;
-- server-side URL fetch;
-- provider keys/tokens;
-- OAuth state/scopes;
-- webhook signatures.
-
-### Resolution
-
-DOC-145/144 implementation and security testing.
-
----
-
-## 11. GAP-MED-001 — Actual media-original/derivative classification unknown
-
-Need verify current files under deployment storage and whether existing thumbnails/processed files are being treated as originals.
-
-### Resolution
-
-DOC-161 + DOC-163 checksum inventory.
-
----
-
-## 12. GAP-QNR-001 — Current Questionnaire revision immutability unknown
-
-Need verify current system stores immutable historical revisions rather than rendering directly from mutable current Profile.
-
-If not, this is a high-priority architecture migration because historical PDFs/QR must remain frozen.
-
----
-
-## 13. GAP-QR-001 — QR not present in original current project status
-
-Earlier project notes indicated QR was absent at runtime. DOC-130 now specifies it fully.
-
-**Class:** likely `IMPLEMENTATION_MISSING`, pending actual code audit.
-
-Prerequisites:
-
-- stable application-controlled public URLs;
-- PDF renderer;
-- canonical link service;
-- exact decode verification.
-
----
-
-## 14. GAP-NOT-001 — Outbound notifications runtime status uncertain
-
-Earlier project status indicated outbound notifications outside current runtime. Actual implementation must confirm:
-
-- durable outbox;
-- NotificationRecipient separation;
-- In-App center;
-- Email/official WhatsApp Business configuration;
-- quiet hours;
-- retries.
-
----
-
-## 15. GAP-SOC-001 — Social scheduling/runtime uncertain
-
-Earlier project roadmap indicated scheduled social publishing outside runtime while OAuth publishing was planned/partially specified.
-
-Actual code audit must classify:
+For every existing conflicting technology classify:
 
 ```text
-ABSENT
-PARTIAL_DRAFT_ONLY
-CONNECTED_NO_SCHEDULER
-FULLY_IMPLEMENTED
+KEEP_AS_CANONICAL
+MIGRATE
+TEMPORARY_COMPATIBILITY_ADAPTER
+REMOVE
 ```
 
-Do not resume legacy schedules blindly during migration.
+Enterprise completion does not allow undocumented competing ORM, migrations, queue, search, storage, styling, schema-validation or testing stacks.
 
 ---
 
-## 16. GAP-ANL-001 — Analytics/share tracking runtime uncertain
+# 6. GAP-DB-001 — Actual schema/migration compatibility unknown
 
-Earlier project status indicated analytics/share tracking roadmap. DOC-129/155 now define target architecture; implementation state must be verified.
+**Class:** `MIGRATION_UNKNOWN`  
+**Severity:** P0/P1.
+
+Need inspect:
+
+- current PostgreSQL version/schema;
+- IDs/FKs;
+- legacy tables;
+- current ORM/query layer;
+- visibility fields;
+- revisions/snapshots;
+- Audit/Outbox/jobs/idempotency;
+- data volumes/indexes.
+
+### Resolution
+
+DOC-161/162 + DOC-208 + DOC-225.
 
 ---
 
-## 17. GAP-AI-001 — AI role separation in code unknown
+# 7. GAP-DATA-001 — Legacy professional data ambiguity
 
-Documentation explicitly separates:
+**Class:** `DATA_AMBIGUITY`  
+**Severity:** P1.
+
+Potential ambiguous data:
+
+- Skill level;
+- CEFR;
+- legacy educational Projects vs Training;
+- Achievement wording/status/subject;
+- visibility permissions;
+- notification recipient vs public Contact;
+- AI proposed vs Human-confirmed Casting requirements.
+
+### Resolution
+
+Human review queue. Never infer values to make target schema complete.
+
+---
+
+# 8. GAP-MEDIA-001 — Actual original/derivative inventory unknown
+
+**Class:** `MIGRATION_UNKNOWN`  
+**Severity:** P1.
+
+Need checksum inventory of files and metadata under actual storage.
+
+Determine:
+
+- immutable originals;
+- derivatives;
+- orphan files;
+- public/private access;
+- legacy crop semantics;
+- invalid direct filesystem URLs.
+
+---
+
+# 9. GAP-SEC-001 — Actual Admin authentication/authorization unknown
+
+**Class:** `SECURITY_UNKNOWN`  
+**Severity:** P0.
+
+Verify/reconcile to DOC-141/142/208:
+
+- PostgreSQL opaque sessions;
+- Argon2id;
+- cookie flags;
+- expiry/rotation/revocation;
+- recovery;
+- CSRF/origin;
+- authorization/profile scope;
+- MFA readiness.
+
+---
+
+# 10. GAP-SEC-002 — Public serialization/access leakage unknown
+
+**Class:** `SECURITY_UNKNOWN`  
+**Severity:** P0.
+
+Inspect raw public/RSC/API/Builder/token payloads.
+
+Hidden fields must be absent before serialization, not merely hidden in UI.
+
+---
+
+# 11. GAP-SEC-003 — Upload/URL/provider security unknown
+
+**Class:** `SECURITY_UNKNOWN`  
+**Severity:** P0/P1.
+
+Verify:
+
+- MIME/magic/type validation;
+- quarantine;
+- path containment;
+- SVG/content policy;
+- SSRF DNS/IP redirect controls;
+- OAuth state/PKCE/scopes;
+- webhook signatures/replay;
+- provider secret handling.
+
+---
+
+# 12. GAP-QNR-001 — Historical Questionnaire implementation unknown
+
+**Class:** `IMPLEMENTATION_UNKNOWN`  
+**Severity:** P1.
+
+Must prove immutable `QuestionnaireRevision` and DocumentModel/PDF/QR generation from frozen semantics.
+
+Current Profile edits must not mutate historical output.
+
+---
+
+# 13. GAP-BLD-001 — Builder eligibility isolation unknown
+
+Need prove browser receives only Builder-eligible Source and Generate revalidates forged IDs/current eligibility.
+
+No mandatory account signup baseline.
+
+---
+
+# 14. GAP-JOB-001 — Durable Outbox/job implementation unknown
+
+**Class:** `IMPLEMENTATION_UNKNOWN`  
+**Severity:** P0/P1.
+
+Target:
+
+```text
+PostgreSQL Outbox
+PostgreSQL jobs
+SKIP LOCKED leases
+idempotency
+bounded retry
+UNKNOWN_OUTCOME reconciliation
+```
+
+No Redis/BullMQ second authority baseline.
+
+---
+
+# 15. GAP-NOT-001 — Notification provider evidence unknown
+
+Need prove Feedback commits independently from external provider delivery and In-App/Email/official WhatsApp states are separate.
+
+Live Email/WhatsApp provider status may remain `IMPLEMENTED_UNVERIFIED` if credentials/sandbox evidence are unavailable.
+
+---
+
+# 16. GAP-AI-001 — AI capability separation unknown
+
+Actual code must preserve separate contracts for:
 
 ```text
 Casting AI
-Theme AI
 BB Assistant
-VOP
+Theme AI
+VOP explanation
 ```
 
-Need audit actual code for one generic AI helper that bypasses capability-specific contracts/provenance.
+No generic AI write tool may mutate arbitrary domains.
 
 ---
 
-## 18. GAP-VOP-001 — Safe Action Registry implementation unknown
+# 17. GAP-VOP-001 — Safe Action Registry evidence missing
 
-Target requires hard allowlist and hard business-authority deny list. If current VOP does not exist, implement after deterministic domains/jobs. If generic AI operator exists, restrict before expanding.
+Need server-side hard allowlist and hard business-authority deny list.
 
----
-
-## 19. GAP-HLP-001 — Help Center/Tickets current implementation unknown
-
-Earlier project requirements mention RU help center/tickets. Need verify actual separation of professional Feedback vs technical HelpTicket, private internal notes and attachment security.
+UI/config restriction alone is insufficient.
 
 ---
 
-## 20. GAP-ACH-001 — Achievement semantic status normalization unknown
+# 18. GAP-SOC-001 — Social OAuth/publish/reconciliation evidence unknown
 
-Need inspect legacy records for `winner/nominee/official selection/laureate` and confirm subject personal vs project. No automatic upgrade.
+Need prove:
+
+- OAuth state/PKCE/token security;
+- media rights/embargo;
+- Human approval fingerprint;
+- immutable PublishSnapshot;
+- durable schedule;
+- provider attempt;
+- signed webhook;
+- UNKNOWN_OUTCOME reconciliation;
+- duplicate prevention.
 
 ---
 
-## 21. GAP-NFR-001 — Performance baseline not measured
+# 19. GAP-ANL-001 — Analytics implementation/evidence unknown
+
+Need verify versioned event registry, privacy minimization, Admin/bot/non-prod filtering and server authority for business conversions.
+
+Analytics remains read-only.
+
+---
+
+# 20. GAP-UI-001 — Consuming-project interface system integration unknown
+
+**Class:** `INTERFACE_INTEGRATION_UNKNOWN`.
+
+Generic source is verified at:
+
+```text
+CerebrumYK/GPT-Skill-Enterfaces
+598677eb16196398f0b563ed039bff341a5cf197
+```
+
+Need actual application evidence for:
+
+```text
+AGENTS.md
+DESIGN.md
+interface project profile
+pinned vendored skills
+sync/drift tooling
+automatic interface-build activation
+runtime verification
+better-interface
+interface-review
+```
+
+---
+
+# 21. GAP-TEST-001 — Full test evidence not yet linked
 
 **Class:** `TEST_MISSING / IMPLEMENTATION_UNKNOWN`.
 
-Need measure current public pages/API/DB/media using DOC-151/175 targets before claiming compliance.
-
----
-
-## 22. GAP-A11Y-001 — Accessibility baseline not measured
-
-Need automated + keyboard/screen-reader/contrast review. Current design appearance alone is no evidence of WCAG compliance.
-
----
-
-## 23. GAP-COMP-001 — Browser support baseline not measured
-
-Need actual browser matrix tests against implementation.
-
----
-
-## 24. GAP-SEO-001 — Current metadata/indexability not audited
-
-Need verify canonical/robots/sitemap/structured data and ensure Admin/token resources do not leak.
-
----
-
-## 25. GAP-OPS-001 — Actual production service names/process manager unknown
-
-Documentation deliberately does not invent exact systemd/container commands. Deployment/runbook must be specialized after inspecting actual production units.
-
-### Resolution
-
-Record actual:
-
-- service names;
-- working directories;
-- environment file location;
-- Nginx site config;
-- worker command;
-- PostgreSQL backup command/tool;
-- monitoring stack.
-
----
-
-## 26. GAP-OPS-002 — RPO/RTO values not formally set
-
-DOC-193 defines semantics but intentionally does not invent operational commitment.
-
-### Resolution
-
-Operator chooses values based on actual backup frequency/storage/recovery capability.
-
----
-
-## 27. GAP-OPS-003 — Restore rehearsal evidence absent in documentation repository
-
-Need actual periodic restore evidence after implementation/ops integration.
-
----
-
-## 28. GAP-GH-001 — `.github` templates/workflows not created by this documentation-only operation
-
-DOC-221 specifies templates, but this operation creates canonical documentation, not implementation `.github` files unless separately requested/implemented.
-
-### Resolution
-
-Codex Phase 0/1 can materialize `.github` templates/workflows in the actual implementation repo.
-
----
-
-## 29. GAP-TRACE-001 — Actual code/test paths absent from traceability
-
-DOC-182 deliberately contains model/example, not invented code paths.
-
-### Resolution
-
-After actual code audit, create/update machine-readable traceability and DOC-232.
-
----
-
-## 30. Gap priorities
-
-### P0 before implementation claim
+Need real evidence for:
 
 ```text
-GAP-DOC-001 if repository must be standalone complete
-GAP-IMP-001
-GAP-SEC-001/002/003
-GAP-DB actual schema inventory
+Vitest unit/integration
+real PostgreSQL integration
+Playwright E2E
+security
+axe accessibility
+visual regression
+Lighthouse/performance
+migration
+restore
+provider fake/sandbox
 ```
 
-### P1 before production cutover of new architecture
+A documented E2E case is not a passing test.
+
+---
+
+# 22. GAP-TRACE-001 — Actual machine-readable code/test traceability absent
+
+DOC-182 defines the model, but actual implementation paths/tests must be populated after Phase 0.
+
+DOC-225 requires:
 
 ```text
-media inventory/checksums
-questionnaire revision verification
-migration ambiguity review
-backup/restore evidence
-provider/outbox/idempotency verification
+docs/traceability/requirements.yaml
 ```
 
-### P2 hardening
+or approved canonical equivalent.
+
+Enterprise acceptance requires every release-critical FR to map to implementation/test evidence.
+
+---
+
+# 23. GAP-OPS-001 — Actual production topology evidence required
+
+DOC-208 selects target:
 
 ```text
-performance/accessibility/browser/SEO baselines
-analytics/social/help/VOP optional module completion according to roadmap
+Docker Compose: web + worker + PostgreSQL
+host Nginx HTTPS
+/data/kate-actor persistence
+```
+
+Need actual manifests/config/service evidence and safe migration from current deployment if different.
+
+---
+
+# 24. GAP-OPS-002 — RPO/RTO not yet concretized
+
+**Class:** `ENVIRONMENT_DECISION_REQUIRED`  
+**Severity:** P1 before Enterprise DONE.
+
+DOC-193 intentionally did not invent values.
+
+DOC-225 requires the operator-realistic values to be selected from actual backup/recovery capability and proven with a timed restore rehearsal.
+
+---
+
+# 25. GAP-OPS-003 — Backup/restore rehearsal evidence missing
+
+Need real isolated restore:
+
+- PostgreSQL;
+- media originals;
+- compatible release;
+- workers initially paused;
+- revocation/provider/job reconciliation;
+- derived rebuild;
+- security/functional smoke;
+- measured recovery duration.
+
+---
+
+# 26. GAP-NFR-001 — Performance baseline/evidence missing
+
+Need real measurements against DOC-151/175 and target production-like environment.
+
+No performance compliance claim from architecture alone.
+
+---
+
+# 27. GAP-A11Y-001 — Accessibility runtime evidence missing
+
+Need automated and manual critical evidence:
+
+- axe;
+- keyboard;
+- focus;
+- zoom/reflow;
+- contrast;
+- screen-reader critical paths;
+- reduced motion.
+
+---
+
+# 28. GAP-COMP-001 — Browser matrix evidence missing
+
+Need Playwright-supported Chromium/Firefox/WebKit critical journey evidence plus required mobile/reflow checks.
+
+---
+
+# 29. GAP-SEO-001 — Production SEO/indexability evidence missing
+
+Verify:
+
+- canonical metadata;
+- robots/sitemap;
+- structured data;
+- private/Admin/token noindex;
+- no secret/storage URL leakage.
+
+---
+
+# 30. GAP-PROVIDER-001 — Live provider verification may require credentials
+
+**Class:** `PROVIDER_EVIDENCE_MISSING`.
+
+A provider integration can be code-complete and fake/sandbox-tested while live credentials are unavailable.
+
+Do not fabricate live success.
+
+If a provider is mandatory for declared production acceptance, this remains a release blocker until safe provider evidence exists.
+
+---
+
+# 31. Priority summary
+
+## P0 — before broad implementation / production claim
+
+```text
+actual repository audit
+stack/legacy technology reconciliation
+auth/authz/public projection security
+DB/migration state
+secret/upload/SSRF boundaries
+```
+
+## P1 — before Enterprise DONE
+
+```text
+core domain migration
+media checksums
+immutable questionnaires/Builder
+jobs/outbox/reconciliation
+AI authority boundaries
+social/provider safety
+interface integration
+complete tests/traceability
+production deployment
+backup/restore + RPO/RTO
+```
+
+## P2 — release hardening but still blocking where DOC-179 says so
+
+```text
+performance
+a11y
+browser compatibility
+SEO
+operational tuning
 ```
 
 ---
 
-## 31. Gap resolution workflow
+# 32. Resolution workflow
 
-For every gap:
+Every gap follows:
 
 ```text
-confirm actual state
+inspect actual evidence
+→ classify
+→ map DOC/FR/AC
+→ implement/migrate
+→ test
 → attach evidence
-→ classify owner
-→ link FR/AC/DOC
-→ create scoped issue
-→ implement/migrate/test
 → update traceability
-→ close only after VERIFIED
+→ close only when VERIFIED or explicitly DEFERRED_NON_BASELINE
 ```
 
 ---
 
-## 32. No-gap invention rule
+# 33. No assumption rule
 
-If actual repository contains an implementation not anticipated here, add/update gap/audit based on evidence. Do not force code into a prewritten gap category inaccurately.
+Codex must not turn an unknown into a completed implementation merely to close this list.
 
----
-
-## 33. Acceptance criteria
-
-`AC-GAP231-001` Missing earlier documentation is explicitly classified rather than hidden.  
-`AC-GAP231-002` Documentation completeness and website implementation completeness are separated.  
-`AC-GAP231-003` Security/database/media/migration implementation state remains UNKNOWN until actual audit.  
-`AC-GAP231-004` Ambiguous professional data has Human-review resolution path.  
-`AC-GAP231-005` Optional roadmap modules are not falsely marked implemented.  
-`AC-GAP231-006` Performance/accessibility/SEO/restore compliance requires measured evidence.  
-`AC-GAP231-007` Operational values/service commands are not invented.  
-`AC-GAP231-008` Every gap can be converted into traceable GitHub implementation task.  
-`AC-GAP231-009` Closing a gap requires implementation/test evidence.  
-`AC-GAP231-010` Future audits may add/remove gaps based on actual repository evidence without rewriting historical audit dishonestly.
+If actual evidence reveals an unanticipated conflict, add/update the gap explicitly.
 
 ---
 
-## 34. Финальная доктрина
+# 34. Acceptance criteria
 
-> **The principal current gap is evidence, not specification: the remaining documentation is now defined, but earlier project documents must still be imported for standalone repository completeness and the actual website repository must be audited before any implementation requirement can be marked verified. Every other gap is resolved through evidence, scoped implementation, migration and tests—not assumption.**
+`AC-GAP231-001` No current canonical documentation-import gap remains.  
+`AC-GAP231-002` Remaining gaps are evidence/classification based.  
+`AC-GAP231-003` Actual application audit is P0 before completion claims.  
+`AC-GAP231-004` Legacy non-canonical technology has an explicit convergence path to DOC-208.  
+`AC-GAP231-005` Security/public-serialization unknowns remain blockers until tested.  
+`AC-GAP231-006` Ambiguous professional data always has Human-review resolution.  
+`AC-GAP231-007` Provider live status is never fabricated.  
+`AC-GAP231-008` RPO/RTO and restore evidence are required before Enterprise DONE.  
+`AC-GAP231-009` Machine-readable implementation/test traceability is required.  
+`AC-GAP231-010` Every closed implementation gap links concrete evidence.
+
+---
+
+# 35. Финальная доктрина
+
+> **The specification gap is closed. The remaining work is to convert a complete, coherent Enterprise contract into verified application evidence: one stack, migrated real data, secure runtime boundaries, complete deterministic/manual workflows, controlled AI/providers, production operations and full traceability. No gap is closed by assumption.**

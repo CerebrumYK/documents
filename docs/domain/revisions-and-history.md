@@ -6,7 +6,7 @@
 
 ## Нормативная модель версий, ревизий, исторических снимков и воспроизводимости
 
-**Целевой файл:** `docs/domain/revisions.md`  
+**Целевой файл:** `docs/domain/revisions-and-history.md`  
 **Документ:** DOC-064  
 **Статус:** ✅ Completed  
 **Тип:** Domain / Revisions / Versioning / Snapshots / History
@@ -21,7 +21,7 @@
 - `docs/ux/forms-and-validation.md`
 - `docs/ux/ui-states.md`
 - `docs/domain/domain-model.md`
-- `docs/domain/relationships.md`
+- `docs/domain/entity-relationships.md`
 - `docs/domain/state-machines.md`
 - `docs/domain/data-ownership.md`
 
@@ -1271,21 +1271,15 @@ used to generate artifacts.
 
 # 93. Grid Edit After Finalization
 
-Material change after Finalized/Published MUST create:
+Material change after Finalized/Published MUST create a new immutable `GridRevision` under the same stable logical `EmotionalGrid`.
 
-```text
-new Grid configuration revision
-```
-
-or new EmotionalGrid derived from prior configuration.
-
-Implementation choice later.
+Creating a completely new `EmotionalGrid` is reserved for an intentionally separate grid concept, not ordinary editing of a finalized grid.
 
 ---
 
-# 94. Canonical Recommendation for Grid
+# 94. Canonical Grid Revision Model
 
-Use stable logical EmotionalGrid plus versioned/finalized GridRevision if implementation complexity is acceptable.
+Use stable logical EmotionalGrid plus versioned/finalized immutable GridRevision.
 
 Conceptual:
 

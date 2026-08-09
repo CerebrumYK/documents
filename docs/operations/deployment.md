@@ -211,15 +211,19 @@ Validate against config schema at startup. Sensitive values not printed. Public 
 
 ## 24. Process management
 
-Use systemd/container/process manager with:
+Canonical production process packaging is Docker Compose according to DOC-208, with separate `web`, `worker` and `postgres` services and host Nginx as HTTPS reverse proxy.
+
+The deployment must provide:
 
 - restart on failure;
 - graceful stop timeout;
-- environment file permissions;
-- logs integration;
-- correct working directory/user.
+- secret/environment permissions;
+- logs/telemetry integration;
+- correct working directory/user;
+- persistent `/data/kate-actor` mounts;
+- one-shot controlled migration execution.
 
-Exact mechanism documented in server runbook.
+Exact compose/service names and commands are recorded in the production runbook after Phase-0 environment audit.
 
 ## 25. Database migration locking
 

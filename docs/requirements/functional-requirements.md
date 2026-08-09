@@ -317,3 +317,16 @@ traceability entry exists
 ## 33. Финальная доктрина
 
 > **DOC-180 is the master feature contract: every capability is defined by the domain that owns it and by the authority boundaries surrounding it. A matching button or endpoint is not sufficient; the implementation must preserve immutable history, Human control, independent visibility, durable side effects and the documented security/NFR semantics.**
+
+# Enterprise implementation requirements
+
+`FR-ENT-001` The production application converges to the single canonical technology stack in DOC-208.  
+`FR-ENT-002` Runtime/package/container/tool versions are explicitly pinned; no floating production `latest` dependency is allowed.  
+`FR-ENT-003` Competing ORM/migration/queue/search/storage/styling/schema-validation/test stacks are removed or bounded by an explicit temporary migration adapter with removal condition.  
+`FR-ENT-004` All baseline functional domains are implemented through one continuous DOC-225 Enterprise campaign, not left as separately requested future work.  
+`FR-ENT-005` Every release-critical FR maps to actual implementation, migration and passing test evidence before VERIFIED.  
+`FR-ENT-006` Enterprise DONE requires all DOC-179 blocking gates, migration/restore evidence and zero unresolved P0/P1 gaps.  
+`FR-ENT-007` The consuming application integrates the pinned GPT-Skill-Enterfaces workflow without creating a second runtime design system.  
+`FR-ENT-008` Production operations use the canonical Docker Compose + host Nginx topology or an explicitly approved ADR that updates DOC-208.  
+`FR-ENT-009` RPO/RTO are concretized from actual infrastructure and demonstrated by restore rehearsal before Enterprise acceptance.  
+`FR-ENT-010` Machine-readable bidirectional FR/AC→code/migration/test evidence is complete before final release acceptance.

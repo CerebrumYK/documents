@@ -503,3 +503,9 @@ Forbidden:
 ## 27. Финальная доктрина
 
 > **The project has many documents but one coherent source-of-truth model: detailed semantics belong to the domain that owns them, security/privacy constrain every surface, master/final documents summarize rather than supersede, and every change remains traceable through stable requirement IDs, Git history, migrations and tests. Neither a newer file, existing code nor AI output can silently rewrite that authority model.**
+
+## Implementation technology authority — DOC-208
+
+DOC-208 `docs/implementation/unified-technology-stack.md` is authoritative for concrete production implementation technology. Generic alternatives/examples in imported Architecture/Database/API documents remain explanatory and MUST NOT be interpreted as permission to create parallel production stacks. A technology substitution requires an explicit ADR/governance decision plus migration/test/rollback plan.
+
+DOC-225 is the canonical one-campaign Enterprise implementation task. It remains subordinate to Security/privacy and owning Domain semantics while wrapping DOC-206 phases into one continuous execution campaign. DOC-237 is the current consistency-audit authority.

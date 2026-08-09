@@ -76,6 +76,7 @@ DEFERRED_NON_BASELINE
 | FR-SEC | Security DOC-140…146 |
 | FR-NFR | NFR DOC-150…155 |
 | FR-OPS | Operations DOC-190…196 |
+| FR-ENT | DOC-208 Unified Stack + DOC-225 Enterprise Pass + DOC-237 Audit |
 
 ## 5. Test layer map
 

@@ -106,9 +106,9 @@ These are implementation instructions/specifications, not evidence that the inte
 | DOC-170…179 Testing | Canonical docs present | NOT_VERIFIED against real test suite |
 | DOC-180…182 Requirements | Canonical docs present | DOCUMENTED, not implementation evidence |
 | DOC-190…196 Operations | Canonical docs present | NOT_VERIFIED against production |
-| DOC-200…207 Implementation | Canonical docs present | implementation instructions only |
-| DOC-220…224 GitHub/Codex | Canonical docs present | process/integration requirements only |
-| DOC-230…235 Final/Audit | Canonical docs present | status/navigation, not product implementation |
+| DOC-200…208 Implementation | Canonical docs present | implementation instructions only; DOC-208 is concrete stack authority |
+| DOC-220…225 GitHub/Codex | Canonical docs present | process/integration requirements only; DOC-225 is Enterprise master task |
+| DOC-230…237 Final/Audit | Canonical docs present | status/navigation/audit, not product implementation |
 
 ---
 

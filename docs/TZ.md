@@ -4,6 +4,8 @@
 > **Статус реализации:** `NOT_IMPLEMENTED_AS_SPECIFIED` до подтверждения кодом, миграциями, тестами и runtime evidence согласно `docs/implementation/implementation-status.md` (DOC-207).  
 > `✅ Completed` в исходном тексте означает завершённость спецификации, а не реализацию функции.
 
+**Документ:** DOC-001  
+
 
 ## Развитие профессионального сайта актрисы и системы управления актёрским профилем
 
@@ -3275,7 +3277,7 @@ docs/
 ├── architecture/
 │   ├── overview.md
 │   ├── domain-model.md
-│   ├── database-schema.md
+│   ├── database-architecture.md
 │   ├── state-machines.md
 │   ├── media-lifecycle.md
 │   ├── questionnaire-revisions.md

@@ -266,3 +266,7 @@ Forbidden:
 ## 38. Финальная доктрина
 
 > **The PostgreSQL schema is an executable structural guardrail around the domain: explicit owners and states, immutable history, independent visibility, foreign keys, uniqueness, optimistic versions, outbox/jobs and indexes. Application services decide meaning; the database makes race-induced and structurally impossible states difficult or impossible to commit.**
+
+## DOC-208 unified-stack binding
+
+For this project, the concrete implementation of the repository/transaction boundary is **Drizzle ORM + node-postgres (`pg`) + one drizzle-kit/reviewed-SQL migration chain**. Raw PostgreSQL SQL remains allowed only inside infrastructure/repository code for explicit features such as partial indexes, FTS/trigram and `SKIP LOCKED`. Prisma/Knex/TypeORM/parallel migration runners are not baseline alternatives. See DOC-208.
