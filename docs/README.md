@@ -7,18 +7,9 @@
 
 ## 1. Назначение
 
-Этот каталог содержит нормативную документацию проекта профессионального сайта/платформы актрисы.
+Этот каталог содержит нормативную документацию проекта профессионального сайта/платформы актрисы, а также отдельно изолированный архив исторических source materials.
 
-Документация предназначена для:
-
-- Product/architecture review;
-- реализации в Codex;
-- разработки и code review;
-- миграций;
-- тестирования;
-- production deployment/operations;
-- security/privacy review;
-- acceptance и final audit.
+Документация предназначена для Product/architecture review, Codex implementation, code review, migrations, testing, production operations, security/privacy review и final acceptance.
 
 ---
 
@@ -26,15 +17,13 @@
 
 ### Для Codex / implementation
 
-Читайте в таком порядке:
-
-1. [`governance.md`](./governance.md) — правила source-of-truth и precedence;
+1. [`governance.md`](./governance.md) — source-of-truth и precedence;
 2. [`final/final-technical-specification.md`](./final/final-technical-specification.md) — consolidated target architecture;
 3. [`github/codex-execution-plan.md`](./github/codex-execution-plan.md) — phased execution plan;
 4. [`implementation/implementation-sequencing.md`](./implementation/implementation-sequencing.md) — dependency order;
-5. соответствующий owning Module/Domain document;
-6. соответствующие Security/NFR/Migration/Testing documents;
-7. [`requirements/functional-requirements.md`](./requirements/functional-requirements.md), [`requirements/acceptance-criteria.md`](./requirements/acceptance-criteria.md), [`requirements/requirements-traceability.md`](./requirements/requirements-traceability.md).
+5. owning Module/Domain document;
+6. Security/NFR/Migration/Testing documents;
+7. `requirements/*`.
 
 ### Для final audit
 
@@ -43,9 +32,11 @@
 3. [`final/final-traceability.md`](./final/final-traceability.md)
 4. [`final/documentation-index.md`](./final/documentation-index.md)
 
-### Для production operations
+### Для historical/source review
 
-Начните с [`operations/operations-overview.md`](./operations/operations-overview.md), затем Deployment → Config/Secrets → Backup/Restore → Monitoring → Incident Response → Runbooks.
+Используйте [`archive/source-materials/README.md`](./archive/source-materials/README.md).
+
+Архив хранит прежние аудиты, Codex plans, AGENTS и UX/data-model reference materials. Они сохранены для provenance и **не имеют precedence над current canonical DOC series**.
 
 ---
 
@@ -94,41 +85,17 @@ Nginx / HTTPS
 application port 3336
 ```
 
-Supabase не является частью canonical architecture.
+Supabase не является частью current canonical architecture, даже если он встречается в historical source materials.
 
 ---
 
 ## 5. Основные domain capabilities
 
-Платформа включает:
-
-- Profile;
-- Media Library;
-- Main Portfolio;
-- Emotional Portfolio/Grid;
-- Projects/Roles;
-- Training;
-- Skills/Languages;
-- Professional Media/Links;
-- Contacts;
-- Questionnaires/PDF/QR;
-- Public Questionnaire Builder;
-- Castings/Casting AI;
-- Feedback/Notifications;
-- Opportunity Pipeline;
-- Site Themes;
-- BB Assistant;
-- VOP;
-- Marketing Analytics;
-- Help Center/Tickets;
-- Social Publishing;
-- Achievements.
+Profile; Media Library; Main Portfolio; Emotional Portfolio/Grid; Projects/Roles; Training; Skills/Languages; Professional Media/Links; Contacts; Questionnaires/PDF/QR; Public Questionnaire Builder; Castings/Casting AI; Feedback/Notifications; Opportunity Pipeline; Site Themes; BB Assistant; VOP; Marketing Analytics; Help Center/Tickets; Social Publishing; Achievements.
 
 ---
 
-## 6. Security/NFR/Operations package present in this repository
-
-Current repository contains complete remaining package:
+## 6. Current canonical package physically present
 
 ```text
 Security       DOC-140…146
@@ -143,15 +110,46 @@ Finalization   DOC-230…234
 Governance     DOC-002/003
 ```
 
-See [`final/documentation-index.md`](./final/documentation-index.md) for exact paths.
+See [`final/documentation-index.md`](./final/documentation-index.md) for exact paths/status.
 
 ---
 
-## 7. Important repository completeness note
+## 7. Imported historical source materials
 
-This GitHub repository was empty before creation of the **remaining documentation package**.
+The repository now also contains safely archived historical materials recovered from the previous development-document package available in File Library:
 
-The project conversation had already authored/defined earlier documents:
+```text
+docs/archive/source-materials/
+├── README.md
+├── 2026-07-26/
+│   ├── README-source-package.md
+│   ├── AGENTS-v1.md
+│   └── CODEX_TASKS-v1.md
+└── 2026-07-27/
+    ├── 01-repository-audit.md
+    ├── 03-data-relationships-v2.md
+    ├── 04-codex-tasks-v2.md
+    ├── 05-agents-v2.md
+    └── 06-ux-reference-analysis.md
+```
+
+These filenames were normalized to kebab-case/explicit version naming to avoid collisions with current root/canonical files.
+
+### Deliberately not committed
+
+- real source actor questionnaire DOCX;
+- production/private imports;
+- secrets/exports;
+- historical full TZ copies that may include source personal data until redaction/review;
+- redundant binary DOCX copies where Markdown or canonical replacement exists.
+
+This is intentional privacy protection, not an omission to be filled by guessing.
+
+---
+
+## 8. Earlier canonical project documents still awaiting direct import
+
+The project conversation had already authored/defined:
 
 ```text
 DOC-001
@@ -165,64 +163,35 @@ DOC-100…103
 DOC-110…134
 ```
 
-Those files are **not physically present in this repository yet** unless separately imported.
-
-Do not interpret their absence as permission to invent replacement semantics.
-
-For details see:
-
-- [`final/documentation-audit.md`](./final/documentation-audit.md)
-- [`final/gap-analysis.md`](./final/gap-analysis.md)
-- [`final/documentation-index.md`](./final/documentation-index.md)
+Historical July source files do **not** substitute for these later canonical DOC documents. Until the original authored DOC-001…134 files are imported, use current final consolidation/traceability plus source archive only as evidence.
 
 ---
 
-## 8. Master requirements
-
-The consolidated requirement catalog is:
+## 9. Master requirements
 
 - [`requirements/functional-requirements.md`](./requirements/functional-requirements.md) — `FR-*`;
 - [`requirements/acceptance-criteria.md`](./requirements/acceptance-criteria.md) — `AC-MASTER-*`;
-- [`requirements/requirements-traceability.md`](./requirements/requirements-traceability.md) — traceability model.
+- [`requirements/requirements-traceability.md`](./requirements/requirements-traceability.md) — traceability.
 
-A requirement is not `VERIFIED` until actual implementation and passing test evidence exists.
-
----
-
-## 9. Human authority boundaries
-
-The following classes of action remain explicitly Human-controlled:
-
-- professional Source fact changes;
-- Skill/Language level;
-- Casting Requirement confirmation;
-- Questionnaire publication;
-- Theme activation;
-- professional reply/send;
-- Opportunity stage/BOOKED;
-- Project credit creation;
-- Social publishing approval/schedule/publish;
-- ambiguous legacy migration decisions.
-
-AI/VOP may assist or recommend but cannot silently cross these boundaries.
+A requirement is not `VERIFIED` until implementation and passing test evidence exist.
 
 ---
 
-## 10. Documentation governance
+## 10. Human authority boundaries
 
-All conflicts, supersession, stable DOC IDs, requirement changes and precedence are governed by [`governance.md`](./governance.md).
-
-Important principle:
-
-> **A higher document number or newer commit does not automatically override a more specific canonical owning document.**
-
-Security/privacy hard constraints also cannot be weakened by convenience wording in another document.
+Human-controlled actions include professional Source changes, Skill/Language levels, Casting Requirement confirmation, Questionnaire publication, Theme activation, professional send/reply, Opportunity stage/BOOKED, Project credit creation, Social approval/schedule/publish and ambiguous migration decisions.
 
 ---
 
-## 11. Documentation status vs implementation status
+## 11. Documentation governance
 
-Keep separate:
+All conflicts, supersession, stable DOC IDs and precedence are governed by [`governance.md`](./governance.md).
+
+> **A newer commit or historical source filename never overrides the owning canonical document merely by being newer/older.**
+
+---
+
+## 12. Documentation status vs implementation status
 
 ```text
 DOCUMENTED
@@ -230,17 +199,11 @@ IMPLEMENTED_UNVERIFIED
 VERIFIED
 ```
 
-This repository currently proves documentation, not implementation of the website.
-
-Actual code repository must be audited through Phase 0 of [`github/codex-execution-plan.md`](./github/codex-execution-plan.md).
+This repository proves documentation, not website implementation.
 
 ---
 
-## 12. Recommended first Codex request
-
-Use a scoped request based on DOC-223 rather than asking Codex to implement the whole platform in one pass.
-
-First task should be:
+## 13. Recommended first Codex request
 
 ```text
 Perform Phase 0 repository audit.
@@ -250,10 +213,8 @@ provider integrations, tests and deployment against DOC-200/201/206 and DOC-230/
 Return evidence-backed gaps and a dependency-aware implementation plan.
 ```
 
-After audit, create GitHub issues/PR-sized phases using DOC-221 templates.
-
 ---
 
-## 13. Финальная доктрина
+## 14. Финальная доктрина
 
-> **The documentation is an implementation contract, not a substitute for repository evidence. Start from governance and the final technical specification, implement through small dependency-aware phases, preserve Human professional authority and update traceability only when real code, migrations and tests prove the requirement.**
+> **Use current canonical DOCs for implementation, historical source materials only for provenance/evidence, and never commit private source documents merely to make the documentation repository appear complete.**
