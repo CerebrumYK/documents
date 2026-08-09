@@ -60,7 +60,7 @@ After universal docs, inspect actual application evidence:
 9. existing branch/PR for the same feature;
 10. representative existing screens/components.
 
-Do not assume Next.js/Tailwind/Playwright solely from this documentation; verify application repository reality first.
+Verify actual application repository reality first, then reconcile it to DOC-208. Next.js/TypeScript and Playwright are canonical target technologies; CSS Modules/design tokens are the canonical styling baseline. Do not add Tailwind or another parallel UI/test stack merely because the legacy repository differs.
 
 ---
 

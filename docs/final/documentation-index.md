@@ -14,7 +14,6 @@ Do not collapse these dimensions:
 
 ```text
 PRESENT
-PRESENT
 ARCHIVED_SOURCE
 NOT_AVAILABLE
 ```
@@ -172,6 +171,7 @@ DOC-204 docs/implementation/frontend-implementation.md
 DOC-205 docs/implementation/backend-worker-implementation.md
 DOC-206 docs/implementation/implementation-sequencing.md
 DOC-207 docs/implementation/implementation-status.md
+DOC-208 docs/implementation/unified-technology-stack.md
 ```
 
 DOC-207 is the authority for distinguishing spec completion from application completion.
@@ -186,6 +186,7 @@ DOC-221 docs/github/issue-and-pr-templates.md
 DOC-222 docs/github/branch-release-strategy.md
 DOC-223 docs/github/codex-execution-plan.md
 DOC-224 docs/github/interface-system-integration.md
+DOC-225 docs/github/codex-enterprise-implementation-pass.md
 ```
 
 DOC-224 pins `GPT-Skill-Enterfaces@598677eb16196398f0b563ed039bff341a5cf197` for future project integration.
@@ -202,6 +203,7 @@ DOC-233 docs/final/final-technical-specification.md
 DOC-234 docs/final/documentation-index.md
 DOC-235 docs/final/source-package-and-implementation-audit.md
 DOC-236 docs/final/canonical-import-verification.md
+DOC-237 docs/final/enterprise-consistency-audit.md
 ```
 
 DOC-236 is the current repository-presence authority after canonical import. DOC-235 remains the source/implementation audit; neither supersedes owning product/domain requirements.
@@ -254,8 +256,10 @@ DOC-103 docs/api/idempotency.md
 ```text
 DOC-003 Governance
 → DOC-207 Implementation Status
+→ DOC-237 Enterprise Consistency Audit
 → DOC-233 Final Technical Specification
-→ DOC-235 Current Audit
+→ DOC-208 Unified Technology Stack
+→ DOC-225 Enterprise Implementation Pass
 → DOC-223 Codex Execution Plan
 → DOC-206 Implementation Sequencing
 → owning specification docs

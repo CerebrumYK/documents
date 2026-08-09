@@ -3656,14 +3656,14 @@ must be traceable where meaningful.
 
 # 263. Domain Model and Version IDs
 
-Entities requiring concurrency control SHOULD support logical version/revision indicator.
+Entities requiring concurrency control MUST use a monotonic integer `version` as the authoritative optimistic-concurrency token.
 
-Exact mechanism later:
+Canonical mechanism:
 
 ```text
-version integer
-updated_at
-etag/hash
+version integer      authoritative compare-and-swap token
+updated_at           audit/display metadata
+etag/hash             MAY be derived for HTTP/cache semantics, never the write authority
 ```
 
 ---

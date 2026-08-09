@@ -187,3 +187,21 @@ inventory code/routes/DB/media/auth/providers/jobs/tests/CI/deployment/UI system
 ## 10. Final doctrine
 
 > **This repository defines what the actor-site platform must become. It does not certify what the application already is. Every implementation claim must come from application evidence; every UI workflow must preserve actor-domain/security truth while using the pinned universal interface system as the repeatable build/review process.**
+
+## Enterprise implementation entry point
+
+For a full implementation campaign read in this order:
+
+```text
+DOC-003 Governance
+→ DOC-207 Implementation Status
+→ DOC-237 Enterprise Consistency Audit
+→ DOC-233 Final Technical Specification
+→ DOC-208 Unified Technology Stack
+→ DOC-225 Codex Enterprise Implementation Pass
+→ DOC-223 Codex Execution Plan
+→ DOC-206 Sequencing
+→ owning DOC/FR/AC
+```
+
+DOC-225 is the direct Codex task for implementing the entire documented platform as one Enterprise campaign with dependency-safe checkpoints and complete quality evidence.

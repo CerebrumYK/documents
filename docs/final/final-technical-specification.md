@@ -1383,3 +1383,7 @@ This limitation does not authorize substituting the detailed earlier domain docs
 # 46. Финальная доктрина
 
 > **The actress website is a professional-source platform with a public portfolio surface, private opportunity workflow and carefully bounded automation. PostgreSQL and immutable media preserve truth; revisions preserve history; projections preserve privacy; workers preserve durability; Human confirmation preserves professional authority; and AI/providers remain assistants and delivery mechanisms rather than autonomous owners of facts, publication or career decisions.**
+
+## Unified implementation technology authority
+
+DOC-208 is authoritative for the concrete production toolchain. The high-level architecture in this Technical Specification remains unchanged, but generic alternatives in lower-level imported documents do not permit multiple parallel implementation stacks. DOC-225 is the canonical Enterprise implementation campaign that must realize this specification end-to-end.

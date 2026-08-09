@@ -273,3 +273,7 @@ Forbidden:
 ## 33. Финальная доктрина
 
 > **Testing is a proof system for documented invariants. Cheap deterministic rules are tested close to the domain, real infrastructure contracts are exercised in integration, and E2E/security suites prove that assembled surfaces cannot leak, overwrite, duplicate or autonomously perform forbidden professional actions.**
+
+## Canonical test tooling
+
+The project test implementation is singular per DOC-208: **Vitest** for unit/integration orchestration, real **PostgreSQL** for database semantics, **Playwright** for E2E/cross-browser/visual, **axe-core** for automated accessibility and **Lighthouse CI** plus controlled browser measurements for public performance. Jest/Cypress/SQLite are not parallel baseline substitutes.

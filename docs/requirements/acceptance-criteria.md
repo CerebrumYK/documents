@@ -177,9 +177,22 @@
 `AC-MASTER-109` High-risk changes have docs/migration/security review.  
 `AC-MASTER-110` Release quality gates DOC-179 pass.
 
+# 20. Enterprise integrated implementation
+
+`AC-MASTER-111` Final application uses exactly one canonical production technology stack defined by DOC-208.  
+`AC-MASTER-112` Runtime/package/container versions are pinned and reproducible; production uses no floating `latest`.  
+`AC-MASTER-113` No unauthorized parallel ORM/migration/queue/search/storage/styling/test stack remains at Enterprise acceptance.  
+`AC-MASTER-114` All baseline product modules are implemented within the continuous DOC-225 Enterprise campaign.  
+`AC-MASTER-115` Every release-critical FR has actual code and passing-test traceability.  
+`AC-MASTER-116` Full unit/integration/E2E/security/accessibility/performance/visual/migration/restore gates pass.  
+`AC-MASTER-117` P0/P1 residual implementation gaps are zero at Enterprise DONE.  
+`AC-MASTER-118` Interface implementation is verified through the pinned DOC-156/224 lifecycle and project-owned design evidence.  
+`AC-MASTER-119` Backup/restore rehearsal demonstrates documented achievable RPO/RTO before production acceptance.  
+`AC-MASTER-120` Final Enterprise report identifies exact non-VERIFIED provider/environment limitations; no external success is fabricated.
+
 ---
 
-## 20. Acceptance state
+## 21. Acceptance state
 
 Product status may be:
 
@@ -192,6 +205,6 @@ ACCEPTED
 
 Security/privacy/data-loss/Human-authority blockers always force `NOT_ACCEPTABLE` for production release.
 
-## 21. Финальная доктрина
+## 22. Финальная доктрина
 
 > **Acceptance is system-wide. The project is not accepted because individual screens work: the same data must remain correctly owned, private where required, historically immutable where published, Human-controlled where professional decisions matter, and recoverable when workers/providers/migrations fail.**

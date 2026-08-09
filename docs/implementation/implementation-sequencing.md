@@ -392,3 +392,7 @@ Forbidden:
 ## 33. Финальная доктрина
 
 > **Implementation proceeds from authority and data foundations outward: first secure Source and revisions, then deterministic professional workflows, then durable asynchronous infrastructure, and only then AI/providers/analytics. This sequence ensures optional intelligence and automation enhance a complete manual system instead of becoming hidden dependencies for correctness.**
+
+## Enterprise campaign interpretation
+
+DOC-225 wraps all phases in this document into **one continuous Enterprise implementation campaign**. The existing prohibition on a giant “implement everything” PR remains valid: one campaign means no scope abandonment or repeated user prompts between green phases, while phase gates, atomic commits/checkpoints and dependency-safe migrations remain mandatory.

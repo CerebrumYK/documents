@@ -458,15 +458,13 @@ Each domain SHOULD have appropriate typed state.
 
 # 33. Enum strategy
 
-Physical PostgreSQL enum vs text+CHECK is implementation choice.
-
-Recommended preference:
+Canonical baseline is:
 
 ```text
 text/varchar + CHECK
 ```
 
-for states likely to evolve frequently, unless project ORM/tooling strongly benefits from DB enum.
+for domain states/enums. This keeps migrations explicit and compatible with the single Drizzle/PostgreSQL stack in DOC-208. Native PostgreSQL ENUM is not the baseline and requires an explicit schema ADR for a specific exceptional type.
 
 ---
 
@@ -3658,15 +3656,9 @@ for Projects if slugs per profile.
 
 # 264. Case handling
 
-Case-insensitive uniqueness for email/slug where appropriate via:
+Case-insensitive uniqueness for email/slug uses a canonical normalized application value plus a PostgreSQL functional unique index on `lower(column)` where case-insensitive identity is required.
 
-```text
-normalized column
-citext
-functional lower() index
-```
-
-implementation choice.
+`citext` is not a baseline dependency. Normalization rules belong to the owning domain/application contract and are covered by migration/integration tests.
 
 ---
 

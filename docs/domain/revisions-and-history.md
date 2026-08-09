@@ -1271,21 +1271,15 @@ used to generate artifacts.
 
 # 93. Grid Edit After Finalization
 
-Material change after Finalized/Published MUST create:
+Material change after Finalized/Published MUST create a new immutable `GridRevision` under the same stable logical `EmotionalGrid`.
 
-```text
-new Grid configuration revision
-```
-
-or new EmotionalGrid derived from prior configuration.
-
-Implementation choice later.
+Creating a completely new `EmotionalGrid` is reserved for an intentionally separate grid concept, not ordinary editing of a finalized grid.
 
 ---
 
-# 94. Canonical Recommendation for Grid
+# 94. Canonical Grid Revision Model
 
-Use stable logical EmotionalGrid plus versioned/finalized GridRevision if implementation complexity is acceptable.
+Use stable logical EmotionalGrid plus versioned/finalized immutable GridRevision.
 
 Conceptual:
 
