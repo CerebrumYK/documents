@@ -302,7 +302,7 @@ Status: **CONSISTENT**.
 The Enterprise documentation audit identified and corrected these repository-level issues:
 
 1. DOC-001, DOC-012 and DOC-013 lacked explicit DOC IDs in their own metadata headers;
-2. imported documents retained stale paths such as `docs/domain/relationships.md` and `docs/domain/revisions.md`;
+2. imported documents retained stale paths such as `docs/domain/entity-relationships.md` and `docs/domain/revisions-and-history.md`;
 3. legacy database path aliases remained in canonical prose;
 4. DOC-230/231/232 still contained pre-import repository-status claims;
 5. DOC-234 contained a duplicated `PRESENT` status value;
