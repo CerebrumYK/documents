@@ -6,7 +6,7 @@
 
 ## Нормативная модель версий, ревизий, исторических снимков и воспроизводимости
 
-**Целевой файл:** `docs/domain/revisions.md`  
+**Целевой файл:** `docs/domain/revisions-and-history.md`  
 **Документ:** DOC-064  
 **Статус:** ✅ Completed  
 **Тип:** Domain / Revisions / Versioning / Snapshots / History
@@ -21,7 +21,7 @@
 - `docs/ux/forms-and-validation.md`
 - `docs/ux/ui-states.md`
 - `docs/domain/domain-model.md`
-- `docs/domain/relationships.md`
+- `docs/domain/entity-relationships.md`
 - `docs/domain/state-machines.md`
 - `docs/domain/data-ownership.md`
 

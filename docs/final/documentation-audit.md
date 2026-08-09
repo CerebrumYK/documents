@@ -195,10 +195,10 @@ These paths should be used when earlier documents are imported.
 Earlier authored docs may contain stale related-document references such as:
 
 ```text
-database-schema.md
-visibility-model.md
-validation-rules.md
-deletion-retention.md
+database-architecture.md
+visibility-and-access.md
+validation-and-constraints.md
+deletion-and-retention.md
 ```
 
 Canonical replacements are the paths listed in section 5.

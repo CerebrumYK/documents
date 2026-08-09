@@ -61,7 +61,7 @@
 Физическая схема определяется позднее в:
 
 ```text
-DOC-090 database-schema.md
+DOC-090 database-architecture.md
 DOC-091 data-dictionary.md
 ```
 

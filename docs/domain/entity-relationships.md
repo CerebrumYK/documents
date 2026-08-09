@@ -6,7 +6,7 @@
 
 ## Канонические связи, cardinality и aggregate boundaries доменной модели
 
-**Целевой файл:** `docs/domain/relationships.md`  
+**Целевой файл:** `docs/domain/entity-relationships.md`  
 **Документ:** DOC-061  
 **Статус:** ✅ Completed  
 **Тип:** Domain / Relationships / Aggregate Boundaries

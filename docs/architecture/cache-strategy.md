@@ -21,7 +21,7 @@
 - `docs/domain/domain-model.md`
 - `docs/domain/state-machines.md`
 - `docs/domain/data-ownership.md`
-- `docs/domain/revisions.md`
+- `docs/domain/revisions-and-history.md`
 - `docs/architecture/architecture-overview.md`
 - `docs/architecture/components.md`
 - `docs/architecture/data-flows.md`

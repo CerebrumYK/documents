@@ -72,10 +72,10 @@ Do not regenerate approximate versions and present them as byte-identical origin
 Known aliases likely needing correction after import:
 
 ```text
-database-schema.md
-visibility-model.md
-validation-rules.md
-deletion-retention.md
+database-architecture.md
+visibility-and-access.md
+validation-and-constraints.md
+deletion-and-retention.md
 ```
 
 Canonical targets:

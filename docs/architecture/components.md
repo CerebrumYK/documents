@@ -24,10 +24,10 @@
 - `docs/ux/public-user-flows.md`
 - `docs/ux/admin-user-flows.md`
 - `docs/domain/domain-model.md`
-- `docs/domain/relationships.md`
+- `docs/domain/entity-relationships.md`
 - `docs/domain/state-machines.md`
 - `docs/domain/data-ownership.md`
-- `docs/domain/revisions.md`
+- `docs/domain/revisions-and-history.md`
 - `docs/architecture/architecture-overview.md`
 
 ---
