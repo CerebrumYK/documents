@@ -1,0 +1,117 @@
+name: Enterprise documentation audit once
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/enterprise-doc-audit-once.yml'
+      - 'docs/**'
+      - 'README.md'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Structural and stack consistency audit
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, collections
+
+          root=Path('.')
+          canonical=[]
+          for p in Path('docs').rglob('*.md'):
+            s=str(p)
+            if '/archive/' in s or '/source-materials/' in s:
+              continue
+            canonical.append(p)
+
+          print('CANONICAL_MD_COUNT',len(canonical))
+
+          # Primary DOC IDs: inspect title prefix only to avoid references later in body.
+          prim=[]
+          for p in canonical:
+            text=p.read_text(encoding='utf-8',errors='replace')
+            head='\n'.join(text.splitlines()[:20])
+            m=re.search(r'\bDOC-(\d{3})\b',head)
+            if m:
+              prim.append((int(m.group(1)),str(p)))
+          by=collections.defaultdict(list)
+          for n,p in prim: by[n].append(p)
+          dup={n:ps for n,ps in by.items() if len(ps)>1}
+          print('PRIMARY_DOC_IDS',len(by))
+          print('DUP_PRIMARY_DOC_IDS',dup)
+
+          # Expected currently governed IDs.
+          expected={1,2,3}
+          expected.update(range(10,16)); expected.update(range(20,31)); expected.update(range(40,51))
+          expected.update(range(60,65)); expected.update(range(70,81)); expected.update(range(90,95)); expected.update(range(100,104))
+          expected.update(range(110,135)); expected.update(range(140,147)); expected.update(range(150,157))
+          expected.update(range(160,166)); expected.update(range(170,183)); expected.update(range(190,197)); expected.update(range(200,208))
+          expected.update(range(220,225)); expected.update(range(230,237))
+          missing=sorted(expected-set(by))
+          print('MISSING_EXPECTED_PRIMARY_DOC_IDS',missing)
+
+          # Broken relative markdown file links.
+          broken=[]
+          linkre=re.compile(r'\[[^\]]*\]\(([^)]+)\)')
+          for p in canonical+[Path('README.md')]:
+            if not p.exists(): continue
+            text=p.read_text(encoding='utf-8',errors='replace')
+            for raw in linkre.findall(text):
+              target=raw.strip().split('#',1)[0].strip()
+              if not target or target.startswith(('http://','https://','mailto:','tel:','#')):
+                continue
+              target=target.split(' ',1)[0].strip('<>')
+              q=(p.parent/target).resolve()
+              if not q.exists(): broken.append((str(p),raw))
+          print('BROKEN_RELATIVE_LINK_COUNT',len(broken))
+          for x in broken[:200]: print('BROKEN_LINK',*x)
+
+          # Stale import/repository status markers after DOC-236.
+          stale_terms=[
+            'EXPECTED_NOT_IMPORTED','SOURCE_PACKAGE_AVAILABLE','not yet present in this repository',
+            'not physically present','still require import','import/reconciliation still pending',
+            'INCOMPLETE UNTIL EARLIER DOC-001…134','earlier DOC-001…134 ARE IMPORTED',
+          ]
+          for term in stale_terms:
+            hits=[]
+            for p in canonical:
+              txt=p.read_text(encoding='utf-8',errors='replace')
+              if term.lower() in txt.lower(): hits.append(str(p))
+            if hits: print('STALE_TERM',repr(term),hits)
+
+          # Known stale canonical aliases.
+          aliases=['database-schema.md','visibility-model.md','validation-rules.md','deletion-retention.md','domain-relationships.md','media-architecture.md']
+          for a in aliases:
+            hits=[]
+            for p in canonical:
+              txt=p.read_text(encoding='utf-8',errors='replace')
+              if a in txt: hits.append(str(p))
+            if hits: print('STALE_ALIAS',a,hits)
+
+          # Stack vocabulary inventory. Context is intentionally printed for manual interpretation.
+          terms=['Supabase','Firebase','MongoDB','MySQL','SQLite','Redis','RabbitMQ','Kafka','BullMQ','Prisma','Drizzle','Kysely','Knex','Sequelize','TypeORM','Docker','Kubernetes','Tailwind','shadcn','Material UI','MUI','Vitest','Jest','Playwright','Cypress','Zod','Pino','OpenTelemetry','S3','MinIO','Cloudflare R2','Meilisearch','Elasticsearch']
+          for term in terms:
+            hits=[]
+            for p in canonical:
+              txt=p.read_text(encoding='utf-8',errors='replace')
+              if term.lower() in txt.lower(): hits.append(str(p))
+            if hits: print('STACK_TERM',term,hits)
+
+          # Ambiguity markers.
+          for term in ['TBD','TODO','to be decided','exact mechanism','if practical','may use','may be','optional']:
+            count=0; files=[]
+            for p in canonical:
+              txt=p.read_text(encoding='utf-8',errors='replace')
+              c=txt.lower().count(term.lower())
+              if c: count+=c; files.append(str(p))
+            print('AMBIGUITY_TERM',term,count,files[:50])
+
+          if dup or missing or broken:
+            raise SystemExit('Structural documentation audit failed; see findings above')
+          PY
