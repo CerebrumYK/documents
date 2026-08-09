@@ -35,7 +35,6 @@ jobs:
                   continue
               canonical.append(p)
 
-          # Primary DOC IDs.
           by=collections.defaultdict(list)
           for p in canonical:
               head='\n'.join(p.read_text(encoding='utf-8',errors='replace').splitlines()[:80])
@@ -54,7 +53,6 @@ jobs:
               expected.update(range(a,b+1))
           missing=sorted(expected-set(by))
 
-          # Relative Markdown links.
           broken=[]
           linkre=re.compile(r'\[[^\]]*\]\(([^)]+)\)')
           for p in canonical+[Path('README.md')]:
@@ -68,7 +66,6 @@ jobs:
                   if not (p.parent/target).resolve().exists():
                       broken.append((str(p),raw))
 
-          # Stale aliases are prohibited as active references. DOC-237 may quote historical findings.
           aliases=['database-schema.md','visibility-model.md','validation-rules.md','deletion-retention.md','docs/domain/relationships.md','docs/domain/revisions.md']
           alias_hits=[]
           for p in canonical:
@@ -79,15 +76,15 @@ jobs:
                   if a in txt:
                       alias_hits.append((str(p),a))
 
-          # Current audit/status files cannot regress to pre-import claims.
+          # Current status documents may describe that a legacy category was retired,
+          # but must not claim canonical owners/files are still absent or awaiting import.
           stale=[]
           for p in [Path('docs/final/documentation-audit.md'),Path('docs/final/gap-analysis.md'),Path('docs/final/final-traceability.md')]:
               txt=p.read_text(encoding='utf-8',errors='replace').lower()
-              for term in ['expected_not_imported','not yet present in this repository','still require import','incomplete until earlier doc-001…134']:
+              for term in ['not yet present in this repository','still require import','incomplete until earlier doc-001…134']:
                   if term in txt:
                       stale.append((str(p),term))
 
-          # Required Enterprise bindings.
           required_files=[
               'docs/implementation/unified-technology-stack.md',
               'docs/github/codex-enterprise-implementation-pass.md',
