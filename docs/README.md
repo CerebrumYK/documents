@@ -1,46 +1,74 @@
 # Сайт актрисы — Documentation
-## DOC-002 — входная точка документации
+## DOC-002 — canonical documentation entry point
 
-**Статус:** Canonical Navigation
-
----
-
-## 1. Назначение
-
-Этот каталог содержит нормативную документацию проекта профессионального сайта/платформы актрисы, а также отдельно изолированный архив исторических source materials.
-
-Документация предназначена для Product/architecture review, Codex implementation, code review, migrations, testing, production operations, security/privacy review и final acceptance.
+**Documentation repository:** `CerebrumYK/documents`  
+**Important:** this repository is a specification source, **not proof that the application is implemented**.
 
 ---
 
-## 2. С чего начать
+## 1. Read first
 
-### Для Codex / implementation
+For Codex / implementation work:
 
-1. [`governance.md`](./governance.md) — source-of-truth и precedence;
-2. [`final/final-technical-specification.md`](./final/final-technical-specification.md) — consolidated target architecture;
-3. [`github/codex-execution-plan.md`](./github/codex-execution-plan.md) — phased execution plan;
-4. [`implementation/implementation-sequencing.md`](./implementation/implementation-sequencing.md) — dependency order;
-5. owning Module/Domain document;
-6. Security/NFR/Migration/Testing documents;
-7. `requirements/*`.
+1. [`governance.md`](./governance.md)
+2. [`implementation/implementation-status.md`](./implementation/implementation-status.md) — **do not confuse specification with implementation**
+3. [`final/final-technical-specification.md`](./final/final-technical-specification.md)
+4. [`final/source-package-and-implementation-audit.md`](./final/source-package-and-implementation-audit.md)
+5. [`github/codex-execution-plan.md`](./github/codex-execution-plan.md)
+6. [`implementation/implementation-sequencing.md`](./implementation/implementation-sequencing.md)
+7. relevant owning Product/Domain/Architecture/Module docs
+8. relevant Security/NFR/Testing/Migration docs
+9. `requirements/*`
 
-### Для final audit
+For UI/UX work additionally read:
 
-1. [`final/documentation-audit.md`](./final/documentation-audit.md)
-2. [`final/gap-analysis.md`](./final/gap-analysis.md)
-3. [`final/final-traceability.md`](./final/final-traceability.md)
-4. [`final/documentation-index.md`](./final/documentation-index.md)
-
-### Для historical/source review
-
-Используйте [`archive/source-materials/README.md`](./archive/source-materials/README.md).
-
-Архив хранит прежние аудиты, Codex plans, AGENTS и UX/data-model reference materials. Они сохранены для provenance и **не имеют precedence над current canonical DOC series**.
+1. [`nfr/interface-design-and-quality-system.md`](./nfr/interface-design-and-quality-system.md)
+2. [`github/interface-system-integration.md`](./github/interface-system-integration.md)
+3. pinned `CerebrumYK/GPT-Skill-Enterfaces@598677eb16196398f0b563ed039bff341a5cf197` starting at `docs/CODEX_MASTER.md`.
 
 ---
 
-## 3. Главная архитектурная доктрина
+## 2. Implementation-status doctrine
+
+```text
+DOCUMENTED
+≠ IMPLEMENTED
+≠ VERIFIED
+```
+
+The supplied `kate-site.zip` contains the source specification package for DOC-001 and DOC-010…134. Per current project instruction, those requirements are treated as:
+
+```text
+NOT_IMPLEMENTED_AS_SPECIFIED
+```
+
+until actual application code/runtime/test evidence proves a narrower status.
+
+A `✅ Completed` label inside those files means the **document** was completed.
+
+See DOC-207.
+
+---
+
+## 3. Source package
+
+Manifest:
+
+[`source-materials/kate-site-package-manifest.md`](./source-materials/kate-site-package-manifest.md)
+
+Recorded source:
+
+```text
+kate-site.zip
+SHA-256 5ad6757df46b0fdc7608f068b78b4ef442e9d04b8f56e61adf11b052aeee4ec0
+90 archive entries
+```
+
+The package materially resolves the previous “source not available” gap for DOC-001…134, but it does not by itself make those canonical files physically imported into this repository and it does not prove implementation.
+
+---
+
+## 4. Canonical architecture doctrine
 
 ```text
 Professional Source
@@ -51,170 +79,111 @@ Revision / Snapshot
     ↓
 Derived Artifact / Projection
     ↓
-Public/Admin/Builder/Provider surface
+Public / Admin / Builder / Provider surface
 ```
 
-Ключевые правила:
+Global principles include:
 
-- один владелец каждого профессионального факта;
-- PostgreSQL — authoritative structured store;
-- Media originals immutable;
+- one owner per professional fact;
+- PostgreSQL authoritative structured store;
+- immutable media originals;
 - `Save != Publish`;
 - `Generate != Apply`;
 - `Apply != Publish/Send`;
 - historical Revision/Snapshot immutable;
 - hidden data absent before serialization;
-- AI/VOP/Analytics не получают autonomous professional authority;
-- external provider work выполняется после commit через durable jobs/outbox;
-- retries idempotent, ambiguous provider outcome reconciled;
-- Search/Cache/Derived Artifacts rebuildable;
+- AI/VOP/Analytics have no silent professional authority;
+- external provider work occurs after commit through durable jobs/outbox;
+- retries are idempotent and ambiguous external outcomes reconcile;
 - migrations never invent missing professional facts.
 
 ---
 
-## 4. Технологический baseline
+## 5. Universal interface system
+
+Canonical generic source:
 
 ```text
-Next.js
-TypeScript
-PostgreSQL
-Modular Monolith
-Background Worker
-Nginx / HTTPS
-/data/kate-actor persistent data root
-application port 3336
+CerebrumYK/GPT-Skill-Enterfaces
+598677eb16196398f0b563ed039bff341a5cf197
 ```
 
-Supabase не является частью current canonical architecture, даже если он встречается в historical source materials.
-
----
-
-## 5. Основные domain capabilities
-
-Profile; Media Library; Main Portfolio; Emotional Portfolio/Grid; Projects/Roles; Training; Skills/Languages; Professional Media/Links; Contacts; Questionnaires/PDF/QR; Public Questionnaire Builder; Castings/Casting AI; Feedback/Notifications; Opportunity Pipeline; Site Themes; BB Assistant; VOP; Marketing Analytics; Help Center/Tickets; Social Publishing; Achievements.
-
----
-
-## 6. Current canonical package physically present
+Required future full-build set:
 
 ```text
-Security       DOC-140…146
-NFR            DOC-150…155
-Migrations     DOC-160…165
-Testing        DOC-170…179
-Requirements   DOC-180…182
-Operations     DOC-190…196
-Implementation DOC-200…206
-GitHub/Codex   DOC-220…223
-Finalization   DOC-230…234
-Governance     DOC-002/003
+interface-build
+better-interface
+interface-review
+better-accessibility
+better-layout
+better-writing
+better-typography
+better-colors
+better-ui
 ```
 
-See [`final/documentation-index.md`](./final/documentation-index.md) for exact paths/status.
+The actor-site application must ultimately maintain project-owned `AGENTS.md`, `DESIGN.md`, `docs/interface-project-profile.md`, immutable skill pinning, sync/drift verification, automatic UI activation and runtime/review evidence.
+
+**These are documented requirements and are not currently claimed implemented.**
 
 ---
 
-## 7. Imported historical source materials
+## 6. External design references
 
-The repository now also contains safely archived historical materials recovered from the previous development-document package available in File Library:
+Checklist Design, NoSignups, Open Design, Awesome DESIGN.md and TypeUI are advisory inputs through the pinned universal interface repository.
+
+They do not override product/security rules and must not become mandatory runtime/build/ordinary-CI network dependencies.
+
+---
+
+## 7. Current physical documentation package
+
+Present in this repository:
 
 ```text
-docs/archive/source-materials/
-├── README.md
-├── 2026-07-26/
-│   ├── README-source-package.md
-│   ├── AGENTS-v1.md
-│   └── CODEX_TASKS-v1.md
-└── 2026-07-27/
-    ├── 01-repository-audit.md
-    ├── 03-data-relationships-v2.md
-    ├── 04-codex-tasks-v2.md
-    ├── 05-agents-v2.md
-    └── 06-ux-reference-analysis.md
+DOC-002/003 Governance/navigation
+DOC-140…146 Security
+DOC-150…156 NFR + Interface quality
+DOC-160…165 Migrations
+DOC-170…179 Testing
+DOC-180…182 Requirements
+DOC-190…196 Operations
+DOC-200…207 Implementation/status
+DOC-220…224 GitHub/Codex/interface integration
+DOC-230…235 Finalization/current audit
+historical source archive
+source-package manifest
 ```
 
-These filenames were normalized to kebab-case/explicit version naming to avoid collisions with current root/canonical files.
-
-### Deliberately not committed
-
-- real source actor questionnaire DOCX;
-- production/private imports;
-- secrets/exports;
-- historical full TZ copies that may include source personal data until redaction/review;
-- redundant binary DOCX copies where Markdown or canonical replacement exists.
-
-This is intentional privacy protection, not an omission to be filled by guessing.
+The earlier DOC-001…134 source package is now **available and mapped**, while canonical per-file Git import/reconciliation remains a separate documentation task unless those target paths are already present.
 
 ---
 
-## 8. Earlier canonical project documents still awaiting direct import
+## 8. Historical materials
 
-The project conversation had already authored/defined:
+Earlier July source/audit/Codex materials remain under:
+
+[`archive/source-materials/`](./archive/source-materials/)
+
+They are provenance only and do not override current canonical doctrine.
+
+---
+
+## 9. Recommended first implementation action
+
+Do not ask Codex to claim the whole system is done from these documents.
+
+First perform Phase 0 against the actual actor-site application repository:
 
 ```text
-DOC-001
-DOC-010…015
-DOC-020…030
-DOC-040…050
-DOC-060…064
-DOC-070…080
-DOC-090…094
-DOC-100…103
-DOC-110…134
-```
-
-Historical July source files do **not** substitute for these later canonical DOC documents. Until the original authored DOC-001…134 files are imported, use current final consolidation/traceability plus source archive only as evidence.
-
----
-
-## 9. Master requirements
-
-- [`requirements/functional-requirements.md`](./requirements/functional-requirements.md) — `FR-*`;
-- [`requirements/acceptance-criteria.md`](./requirements/acceptance-criteria.md) — `AC-MASTER-*`;
-- [`requirements/requirements-traceability.md`](./requirements/requirements-traceability.md) — traceability.
-
-A requirement is not `VERIFIED` until implementation and passing test evidence exist.
-
----
-
-## 10. Human authority boundaries
-
-Human-controlled actions include professional Source changes, Skill/Language levels, Casting Requirement confirmation, Questionnaire publication, Theme activation, professional send/reply, Opportunity stage/BOOKED, Project credit creation, Social approval/schedule/publish and ambiguous migration decisions.
-
----
-
-## 11. Documentation governance
-
-All conflicts, supersession, stable DOC IDs and precedence are governed by [`governance.md`](./governance.md).
-
-> **A newer commit or historical source filename never overrides the owning canonical document merely by being newer/older.**
-
----
-
-## 12. Documentation status vs implementation status
-
-```text
-DOCUMENTED
-IMPLEMENTED_UNVERIFIED
-VERIFIED
-```
-
-This repository proves documentation, not website implementation.
-
----
-
-## 13. Recommended first Codex request
-
-```text
-Perform Phase 0 repository audit.
-Do not modify architecture broadly yet.
-Map current code, DB schema, routes, media storage, authentication,
-provider integrations, tests and deployment against DOC-200/201/206 and DOC-230/231.
-Return evidence-backed gaps and a dependency-aware implementation plan.
+inventory code/routes/DB/media/auth/providers/jobs/tests/CI/deployment/UI system
+→ map each requirement to ABSENT/PARTIAL/IMPLEMENTED_UNVERIFIED/VERIFIED/LEGACY_CONFLICT
+→ establish project DESIGN.md/profile and pinned interface integration status
+→ create dependency-aware implementation issues/PRs
 ```
 
 ---
 
-## 14. Финальная доктрина
+## 10. Final doctrine
 
-> **Use current canonical DOCs for implementation, historical source materials only for provenance/evidence, and never commit private source documents merely to make the documentation repository appear complete.**
+> **This repository defines what the actor-site platform must become. It does not certify what the application already is. Every implementation claim must come from application evidence; every UI workflow must preserve actor-domain/security truth while using the pinned universal interface system as the repeatable build/review process.**
