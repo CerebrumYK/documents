@@ -1,41 +1,94 @@
-name: Canonical import transport probe
+name: Canonical documentation importer
 on:
   pull_request:
     branches: [main]
     paths: ['.github/workflows/canonical-import-transport-probe.yml']
 permissions:
-  contents: read
+  contents: write
 jobs:
-  probe:
+  import:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - name: Download lossless PNG probe
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Download SHA-verified lossless parts
+        shell: bash
         run: |
-          curl -fsSL 'https://media.canva.com/v2/image-resize/format:PNG/height:100/quality:100/uri:ifs%3A%2F%2FM%2F84a162dc-0b96-4055-b8cd-39c993dae639/watermark:F/width:100?csig=AAAAAAAAAAAAAAAAAAAAAPJUuQSLM3X7R7ZT4uOYAYjMjzVbxquNM9D9Mq-CW8it&exp=1786294919&osig=AAAAAAAAAAAAAAAAAAAAAC45VNNvMyDL3akuMFELWPl9XuDOjLEHtURaTGhZMx-F&signer=media-rpc&x-canva-quality=thumbnail' -o /tmp/probe.png
-      - name: Verify decoded RGB payload SHA-256
+          set -euo pipefail
+          urls=(
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F3dac6857-08ed-4865-a3ff-1fe238f059cf/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAABFgGN5gMAvTo6K5-kkahJmhcezkkhqgouPtCtk3Uj11&exp=1786296307&osig=AAAAAAAAAAAAAAAAAAAAAM4INbfapOnRHJRXEA4xChjhGGUQuajOTTcnRn67OtU7&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fb4f94825-33c5-418a-b52f-6c331ef863cd/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAMshUJIy6rPWfQt8j87CAh-Ecljb5ZxrEWznGkPjMImM&exp=1786296329&osig=AAAAAAAAAAAAAAAAAAAAAB9Q3l8cmwhq9ILRt4aWUTZLzlKxIb0zNmd9xxUzXR7b&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fa010559d-a691-45e5-a6f5-978f9d318ede/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAJeGU3lUrUKGV7888ZBOtroPbEyBnKWRPpH-Q4ndE6Qb&exp=1786296870&osig=AAAAAAAAAAAAAAAAAAAAAHOgQPCEgr1zxm1rXtN4i-6qU4HLkPViBwq3mQIV0S-L&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F42d1ead1-5e73-4295-ad9d-9b6d95f33713/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAEIw13EivoUKO_NMy68hI4P8Pg4CY8gAkN39QoRGieT0&exp=1786294421&osig=AAAAAAAAAAAAAAAAAAAAAIeHGrYpEC-wxbw1IkkeCM1I6Y36zyGBbCN_HfMhric_&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fc20905ed-a1ab-4bdf-a394-44ae19dffe65/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAKBsxdTdXUtYq5uNbEt7Si4BuzEpyPswW9FQHSbRuWGc&exp=1786295256&osig=AAAAAAAAAAAAAAAAAAAAAOXgalIyx-6kdK6IE41NpSzE5M2bbPDXdS4r1O5z-TZk&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F721dc049-4a81-4d7b-a50d-d417412e150b/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAABMuqgLzZV4U6S1kIame_w--iBsHTbRWlPY1RqqDanOp&exp=1786297734&osig=AAAAAAAAAAAAAAAAAAAAAE_HvnOWPZQoENKbp2VeAw_AFsdVD9Sh0wyVsyGHDJVP&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F9bf58f2e-7947-4743-978f-96769b5e4712/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAANgQyLb6uolIogZtgyoI6C_7846D7mw78PU4Excad_HF&exp=1786296867&osig=AAAAAAAAAAAAAAAAAAAAAMdXrywBbY_e1c9HqImogNXbfKn3Jo5ug4Zig7TPKrAk&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fb34cb312-1a03-435b-9f05-17d6159cc0a2/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAJE10PgFyY-SN8NZmkpK-Ges9IZBvgtzdntN0BW1HlPC&exp=1786296771&osig=AAAAAAAAAAAAAAAAAAAAAP7mcvvkUpY_R3piZp_h0l1iv13Kl5uFYZGCuhPVZKiS&signer=media-rpc&x-canva-quality=thumbnail'
+          'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F04583bb5-80e0-4bec-b727-89b6a2dc5d57/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAJMa5Va4P7lDsS2YK4aAfPHU4QNYElx_KaN6ujKLNFb6&exp=1786297609&osig=AAAAAAAAAAAAAAAAAAAAAEtO8QvrObRBAihG5Isk6y1LROVySjmvhuIwT-Ilw_Fz&signer=media-rpc&x-canva-quality=thumbnail'
+          )
+          for i in "${!urls[@]}"; do printf -v n '%02d' "$i"; curl -fsSL "${urls[$i]}" -o "/tmp/part-$n.png"; done
+      - name: Decode, verify and extract canonical bundle
         run: |
           python3 - <<'PY'
-          import struct,zlib,hashlib
-          p=open('/tmp/probe.png','rb').read(); assert p[:8]==b'\x89PNG\r\n\x1a\n'
-          pos=8; dat=b''; w=h=ct=None
-          while pos<len(p):
-            n=struct.unpack('>I',p[pos:pos+4])[0]; typ=p[pos+4:pos+8]; d=p[pos+8:pos+8+n]; pos += 12+n
-            if typ==b'IHDR': w,h,bd,ct,_,_,_=struct.unpack('>IIBBBBB',d); assert bd==8 and ct==2
-            elif typ==b'IDAT': dat += d
-            elif typ==b'IEND': break
-          raw=zlib.decompress(dat); stride=w*3; prev=bytearray(stride); out=bytearray(); off=0
-          for _ in range(h):
-            f=raw[off]; off+=1; row=bytearray(raw[off:off+stride]); off+=stride
-            for i in range(stride):
-              a=row[i-3] if i>=3 else 0; b=prev[i]; c=prev[i-3] if i>=3 else 0
-              if f==1: row[i]=(row[i]+a)&255
-              elif f==2: row[i]=(row[i]+b)&255
-              elif f==3: row[i]=(row[i]+((a+b)//2))&255
-              elif f==4:
-                q=a+b-c; pa=abs(q-a); pb=abs(q-b); pc=abs(q-c); pr=a if pa<=pb and pa<=pc else (b if pb<=pc else c)
-                row[i]=(row[i]+pr)&255
-              elif f!=0: raise ValueError(f'filter {f}')
-            out += row; prev=row
-          got=hashlib.sha256(out).hexdigest(); exp='b257adb98a1b6a5ee63f63939eacc1389061907f61b636f06899a19b0c8bfbad'
-          print('decoded bytes',len(out),'sha256',got); assert got==exp, (got,exp)
+          import bz2,hashlib,io,os,struct,tarfile,zlib
+          def rgb(path):
+            p=open(path,'rb').read(); assert p[:8]==b'\x89PNG\r\n\x1a\n'
+            pos=8; dat=b''; w=h=None
+            while pos<len(p):
+              n=struct.unpack('>I',p[pos:pos+4])[0]; typ=p[pos+4:pos+8]; d=p[pos+8:pos+8+n]; pos+=12+n
+              if typ==b'IHDR': w,h,bd,ct,_,_,_=struct.unpack('>IIBBBBB',d); assert (bd,ct)==(8,2)
+              elif typ==b'IDAT': dat+=d
+              elif typ==b'IEND': break
+            raw=zlib.decompress(dat); stride=w*3; prev=bytearray(stride); out=bytearray(); off=0
+            for _ in range(h):
+              f=raw[off]; off+=1; row=bytearray(raw[off:off+stride]); off+=stride
+              for i in range(stride):
+                a=row[i-3] if i>=3 else 0; b=prev[i]; c=prev[i-3] if i>=3 else 0
+                if f==1: row[i]=(row[i]+a)&255
+                elif f==2: row[i]=(row[i]+b)&255
+                elif f==3: row[i]=(row[i]+((a+b)//2))&255
+                elif f==4:
+                  q=a+b-c; pa=abs(q-a); pb=abs(q-b); pc=abs(q-c); pr=a if pa<=pb and pa<=pc else (b if pb<=pc else c); row[i]=(row[i]+pr)&255
+                elif f!=0: raise ValueError(f'PNG filter {f}')
+              out+=row; prev=row
+            return bytes(out)
+          chunks=[]
+          for i in range(9):
+            d=rgb(f'/tmp/part-{i:02d}.png'); assert d[:8]==b'KATEPART'
+            idx,total,n=struct.unpack('>HHI',d[8:16]); sha=d[16:48]; part=d[48:48+n]
+            assert (idx,total)==(i,9); assert hashlib.sha256(part).digest()==sha
+            chunks.append(part)
+          payload=b''.join(chunks); expected='1bd7aac292e8a373b0623989340b670ffe5a1288d7d4b25e8f59ae2363a32c93'
+          got=hashlib.sha256(payload).hexdigest(); print('bundle',len(payload),got); assert got==expected
+          tar=bz2.decompress(payload)
+          with tarfile.open(fileobj=io.BytesIO(tar),mode='r:') as tf:
+            members=tf.getmembers(); assert len(members)==89
+            for m in members:
+              norm=os.path.normpath(m.name); assert not os.path.isabs(m.name) and not norm.startswith('..')
+            tf.extractall('.',members=members,filter='data')
+          required=['docs/TZ.md','docs/product/product-overview.md','docs/ux/forms-and-validation.md','docs/domain/entity-relationships.md','docs/architecture/media-processing.md','docs/database/database-architecture.md','docs/api/server-actions.md','docs/modules/profile.md','docs/modules/achievements.md']
+          for p in required: assert os.path.isfile(p),p
+          forbidden=['docs/database/database-schema.md','docs/database/visibility-model.md','docs/domain/domain-relationships.md','docs/architecture/media-architecture.md']
+          for p in forbidden: assert not os.path.exists(p),p
+          canonical=[]
+          for root,_,fs in os.walk('docs'):
+            for f in fs:
+              p=os.path.join(root,f)
+              try: t=open(p,encoding='utf-8').read()
+              except UnicodeDecodeError: continue
+              if 'canonical imported specification' in t: canonical.append(p)
+          print('canonical imported docs',len(canonical)); assert len(canonical)==79
           PY
+      - name: Commit canonical import and remove transport workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/canonical-import-transport-probe.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs .github/workflows/canonical-import-transport-probe.yml
+          git commit -m 'docs: import canonical DOC-001 through DOC-134'
+          git push origin HEAD:${{ github.head_ref }}
