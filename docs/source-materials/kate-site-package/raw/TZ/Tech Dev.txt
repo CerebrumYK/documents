@@ -1,0 +1,3253 @@
+# ТЕХНИЧЕСКАЯ СПЕЦИФИКАЦИЯ РЕАЛИЗАЦИИ
+
+## Дополнительный функционал сайта актрисы
+
+**Статус:** готово к декомпозиции и разработке
+**Назначение:** единый источник требований для разработки, тестирования и приёмки
+**Принцип:** ни одна функция не считается завершённой только по наличию интерфейса — должны быть реализованы модель данных, серверная логика, валидация, права доступа, публичное представление, тесты и документация.
+
+---
+
+# 1. Цель разработки
+
+Необходимо расширить сайт актрисы и административную панель следующими самостоятельными функциональными областями:
+
+1. Основное актёрское портфолио.
+2. Эмоциональное портфолио.
+3. Конструктор эмоционального ряда.
+4. Использование эмоционального ряда в актёрской анкете.
+5. Отдельный раздел «Курсы и тренинги».
+6. Структурированные внешние ссылки.
+7. Единый справочник контактов.
+8. Публичный раздел контактов.
+9. Несколько типов актёрских анкет.
+10. Независимые настройки каждой анкеты.
+11. Независимые настройки PDF.
+12. Публикация выбранного варианта анкеты.
+13. Выбор PDF при скачивании.
+14. Отдельный раздел кастингов.
+15. ИИ-анализ требований кастинга.
+16. Создание анкеты для конкретного кастинга.
+17. Публичная форма обратной связи.
+18. Входящие обращения в административной панели.
+19. Внутренние уведомления.
+20. WhatsApp-уведомления.
+21. ИИ-конструктор визуального оформления сайта.
+22. Версионирование и откат визуального оформления.
+23. Миграция существующих данных.
+24. Аудит действий.
+25. Автоматическое тестирование всех новых сценариев.
+
+---
+
+# 2. Обязательные архитектурные правила
+
+## 2.1. Исходные файлы
+
+Оригинальные медиафайлы должны быть immutable.
+
+Ни один редактор не должен физически изменять оригинальный файл.
+
+Для любых изменений создаются:
+
+* метаданные преобразования;
+* производная web-версия;
+* производная PDF-версия;
+* thumbnail;
+* при необходимости master derivative.
+
+## 2.2. Повторное использование
+
+Если один файл используется:
+
+* в проекте;
+* в портфолио;
+* в эмоциональном портфолио;
+* в анкете;
+
+файл не копируется.
+
+Создаются отдельные связи с одним media asset.
+
+## 2.3. Публикация
+
+Любая новая сущность создаётся как черновик.
+
+Запрещена автоматическая публикация:
+
+* портфолио;
+* эмоционального портфолио;
+* эмоционального ряда;
+* курса;
+* анкеты;
+* кастинговой анкеты;
+* темы сайта;
+* контакта.
+
+## 2.4. Изоляция профилей
+
+Каждая серверная операция обязана проверять:
+
+```text
+requestedEntity.profileId == currentProfile.id
+```
+
+Нельзя полагаться только на фильтрацию интерфейса.
+
+Cross-profile relation должен отклоняться сервером.
+
+## 2.5. Миграции
+
+Запрещается изменять уже применённые миграции.
+
+Каждое изменение БД оформляется новой migration.
+
+## 2.6. Ошибки
+
+Пользователь не должен получать:
+
+```text
+500
+ForeignKeyConstraintError
+Undefined is not a function
+```
+
+Интерфейс должен показывать:
+
+```text
+Не удалось сохранить фотографию.
+Исходный файл больше недоступен.
+Выберите другую фотографию и повторите попытку.
+```
+
+---
+
+# 3. Целевая структура административной панели
+
+Необходимо реализовать следующие самостоятельные пункты:
+
+```text
+Главная
+Профиль
+Портфолио
+Эмоциональное портфолио
+Эмоциональный ряд
+Проекты
+Курсы и тренинги
+Актёрские анкеты
+Кастинги
+Контакты
+Видео, аудио и ссылки
+Медиатека
+Обратная связь
+Уведомления
+Оформление сайта
+Настройки
+```
+
+Для:
+
+```text
+Обратная связь
+Уведомления
+```
+
+должен отображаться badge с количеством непрочитанных элементов.
+
+---
+
+# 4. Целевая публичная структура
+
+Минимальный набор публичных маршрутов:
+
+```text
+/
+/profile
+/portfolio
+/emotional-portfolio
+/emotional-portfolio/{slug}
+/projects
+/training
+/questionnaire
+/contacts
+```
+
+Допускается сохранение существующей локализованной структуры URL.
+
+Кастинги, обращения, административные комментарии и ИИ-анализы публичных URL иметь не должны.
+
+---
+
+# 5. Модель прав
+
+Минимально предусмотреть возможность разграничения:
+
+| Действие                     | Admin |        Editor | Viewer |
+| ---------------------------- | ----: | ------------: | -----: |
+| Просмотр админки             |    Да |            Да |     Да |
+| Редактирование контента      |    Да |            Да |    Нет |
+| Публикация контента          |    Да | По разрешению |    Нет |
+| Изменение контактов          |    Да | По разрешению |    Нет |
+| Просмотр обращений           |    Да |            Да |     Да |
+| Удаление обращения           |    Да |           Нет |    Нет |
+| Запуск ИИ-анализа            |    Да |            Да |    Нет |
+| Публикация анкеты            |    Да | По разрешению |    Нет |
+| Публикация темы              |    Да |           Нет |    Нет |
+| Изменение системных настроек |    Да |           Нет |    Нет |
+
+Если в первой реализации существует только одна роль администратора, структура данных не должна препятствовать последующему добавлению ролей.
+
+---
+
+# 6. Модель данных: Emotional Portfolio
+
+## 6.1. `emotional_portfolios`
+
+```text
+id                  UUID PRIMARY KEY
+profile_id          UUID NOT NULL
+slug                VARCHAR NOT NULL
+title               VARCHAR NOT NULL
+shooting_date       DATE NOT NULL
+location            VARCHAR NULL
+photographer        VARCHAR NULL
+studio              VARCHAR NULL
+description         TEXT NULL
+status              ENUM NOT NULL
+sort_order          INTEGER NOT NULL DEFAULT 0
+published_at        TIMESTAMPTZ NULL
+created_at          TIMESTAMPTZ NOT NULL
+updated_at          TIMESTAMPTZ NOT NULL
+deleted_at          TIMESTAMPTZ NULL
+```
+
+Статусы:
+
+```text
+draft
+ready
+published
+archived
+```
+
+Ограничения:
+
+```text
+UNIQUE(profile_id, slug)
+shooting_date IS NOT NULL
+```
+
+## 6.2. `emotional_portfolio_photos`
+
+```text
+id                          UUID PRIMARY KEY
+profile_id                  UUID NOT NULL
+emotional_portfolio_id      UUID NOT NULL
+media_asset_id              UUID NOT NULL
+emotion_label               VARCHAR NULL
+caption                     TEXT NULL
+alt_text                    TEXT NULL
+sort_order                  INTEGER NOT NULL
+is_published                BOOLEAN NOT NULL DEFAULT false
+created_at                  TIMESTAMPTZ NOT NULL
+updated_at                  TIMESTAMPTZ NOT NULL
+```
+
+Необходимо запретить привязку media asset другого профиля.
+
+---
+
+# 7. Модель данных: Emotional Grid
+
+## 7.1. `emotional_grids`
+
+```text
+id                          UUID PRIMARY KEY
+profile_id                  UUID NOT NULL
+emotional_portfolio_id      UUID NOT NULL
+title                       VARCHAR NOT NULL
+rows                        SMALLINT NOT NULL
+columns                     SMALLINT NOT NULL
+shooting_date               DATE NOT NULL
+status                      ENUM NOT NULL
+is_primary                  BOOLEAN NOT NULL DEFAULT false
+is_published                BOOLEAN NOT NULL DEFAULT false
+master_asset_path           TEXT NULL
+web_asset_path              TEXT NULL
+pdf_asset_path              TEXT NULL
+thumbnail_asset_path        TEXT NULL
+render_version              INTEGER NOT NULL DEFAULT 0
+created_at                  TIMESTAMPTZ NOT NULL
+updated_at                  TIMESTAMPTZ NOT NULL
+```
+
+Допустимые комбинации:
+
+```text
+1x2
+1x3
+1x4
+2x2
+2x3
+2x4
+3x2
+3x3
+3x4
+4x2
+4x3
+4x4
+```
+
+Любая другая комбинация должна блокироваться сервером.
+
+## 7.2. `emotional_grid_cells`
+
+```text
+id                      UUID PRIMARY KEY
+grid_id                 UUID NOT NULL
+profile_id              UUID NOT NULL
+position                INTEGER NOT NULL
+media_asset_id          UUID NOT NULL
+
+crop_x                  DECIMAL NOT NULL
+crop_y                  DECIMAL NOT NULL
+crop_width              DECIMAL NOT NULL
+crop_height             DECIMAL NOT NULL
+scale                   DECIMAL NOT NULL
+offset_x                DECIMAL NOT NULL DEFAULT 0
+offset_y                DECIMAL NOT NULL DEFAULT 0
+rotation                DECIMAL NOT NULL DEFAULT 0
+
+verification_status     ENUM NOT NULL
+verified_by             UUID NULL
+verified_at             TIMESTAMPTZ NULL
+
+created_at              TIMESTAMPTZ NOT NULL
+updated_at              TIMESTAMPTZ NOT NULL
+```
+
+Статусы:
+
+```text
+unchecked
+needs_adjustment
+confirmed
+```
+
+Ограничение:
+
+```text
+UNIQUE(grid_id, position)
+```
+
+---
+
+# 8. UI создания эмоционального ряда
+
+Полный пользовательский сценарий должен выглядеть следующим образом.
+
+## Шаг 1
+
+Администратор открывает:
+
+```text
+Эмоциональный ряд → Создать
+```
+
+## Шаг 2
+
+Выбирает эмоциональное портфолио.
+
+После выбора отображаются:
+
+* название;
+* дата съёмки;
+* количество доступных фотографий;
+* thumbnails.
+
+## Шаг 3
+
+Администратор выбирает сетку.
+
+Например:
+
+```text
+4 × 4
+```
+
+Система создаёт 16 пустых ячеек.
+
+## Шаг 4
+
+Администратор нажимает первую ячейку.
+
+Открывается selector фотографий.
+
+## Шаг 5
+
+После выбора фотографии автоматически открывается crop editor.
+
+## Шаг 6
+
+В crop editor доступны:
+
+* zoom +;
+* zoom −;
+* перемещение;
+* центрирование;
+* reset;
+* preview.
+
+## Шаг 7
+
+Администратор формирует крупный план лица.
+
+Целевое правило:
+
+**около 90% полезной площади кадра должно занимать лицо модели.**
+
+Система может подсказать предполагаемую заполненность, но окончательное подтверждение выполняется человеком.
+
+## Шаг 8
+
+Администратор нажимает:
+
+```text
+Подтвердить кадр
+```
+
+Статус ячейки меняется:
+
+```text
+unchecked → confirmed
+```
+
+## Шаг 9
+
+Процесс повторяется для всех ячеек.
+
+## Шаг 10
+
+Кнопка:
+
+```text
+Сформировать эмоциональный ряд
+```
+
+активна только если:
+
+```text
+filledCells == rows * columns
+AND every(cell.status == confirmed)
+AND shootingDate != null
+```
+
+## Шаг 11
+
+Создаются производные файлы.
+
+## Шаг 12
+
+Администратор получает preview и может:
+
+* сохранить;
+* изменить;
+* назначить основным;
+* опубликовать.
+
+---
+
+# 9. Правила изображения эмоционального ряда
+
+Разрешено только:
+
+```text
+crop
+scale
+position
+orientation correction
+```
+
+Запрещено:
+
+```text
+face retouch
+face generation
+background generation
+outpainting
+inpainting
+body modification
+hair modification
+expression modification
+clothes modification
+object removal
+object generation
+```
+
+ИИ или компьютерное зрение могут использоваться только как помощник для определения позиции лица.
+
+Окончательное изображение должно быть построено исключительно из пикселей исходного фото после обычного геометрического crop.
+
+---
+
+# 10. Генерация Emotional Grid
+
+После любого изменения:
+
+```text
+cell crop
+cell source
+cell order
+grid dimensions
+```
+
+все производные версии должны получить статус `stale`.
+
+Необходимо пересоздать:
+
+```text
+master
+web
+pdf
+thumbnail
+```
+
+Рекомендуемая логика:
+
+```text
+grid.render_version += 1
+```
+
+Старые generated-файлы могут удаляться после успешного создания новых.
+
+До завершения нового render должна продолжать использоваться последняя успешно созданная версия.
+
+---
+
+# 11. Основное портфолио
+
+## 11.1. `portfolio_items`
+
+```text
+id                      UUID PRIMARY KEY
+profile_id              UUID NOT NULL
+media_asset_id          UUID NOT NULL
+type                    ENUM NOT NULL
+title                   VARCHAR NULL
+caption                 TEXT NULL
+alt_text                TEXT NULL
+shooting_date           DATE NULL
+photographer            VARCHAR NULL
+studio                  VARCHAR NULL
+sort_order              INTEGER NOT NULL
+is_published            BOOLEAN NOT NULL DEFAULT false
+is_primary_full_body    BOOLEAN NOT NULL DEFAULT false
+is_primary_close_up     BOOLEAN NOT NULL DEFAULT false
+allow_questionnaire     BOOLEAN NOT NULL DEFAULT true
+allow_extra_material    BOOLEAN NOT NULL DEFAULT false
+created_at              TIMESTAMPTZ NOT NULL
+updated_at              TIMESTAMPTZ NOT NULL
+```
+
+Типы:
+
+```text
+full_body
+close_up
+waist
+profile
+three_quarter
+staged
+appearance
+extra
+other
+```
+
+## 11.2. Ограничения
+
+Для одного профиля:
+
+```text
+MAX 1 is_primary_full_body = true
+MAX 1 is_primary_close_up = true
+```
+
+При назначении нового основного фото система должна атомарно снять флаг со старого.
+
+---
+
+# 12. UI портфолио
+
+Карточка фотографии должна показывать:
+
+* thumbnail;
+* тип;
+* название;
+* дату;
+* статус публикации;
+* «Основная: полный рост»;
+* «Основная: крупный план»;
+* «Можно использовать в анкете»;
+* «Дополнительный материал».
+
+Действия:
+
+```text
+Редактировать
+Назначить основным
+Добавить в анкету
+Открыть оригинал
+Снять с публикации
+Удалить связь
+```
+
+Удаление связи не должно удалять media asset.
+
+---
+
+# 13. Обязательные фотографии анкеты
+
+При создании любой готовой анкеты должны быть назначены:
+
+```text
+fullBodyPhoto
+closeUpPhoto
+```
+
+Источник обоих:
+
+```text
+portfolio_items
+```
+
+Запрещены прямые источники:
+
+```text
+projects
+emotional_portfolio
+media_library
+courses
+```
+
+Если нужная фотография есть только в медиатеке, администратор должен сначала зарегистрировать её как `portfolio_item`.
+
+---
+
+# 14. Курсы и тренинги
+
+## 14.1. `training_items`
+
+```text
+id                      UUID PRIMARY KEY
+profile_id              UUID NOT NULL
+type                    ENUM NOT NULL
+title                   VARCHAR NOT NULL
+organizer               VARCHAR NULL
+teacher                 VARCHAR NULL
+start_date              DATE NULL
+end_date                DATE NULL
+is_ongoing              BOOLEAN NOT NULL DEFAULT false
+format                  VARCHAR NULL
+location                VARCHAR NULL
+description             TEXT NULL
+skills_text             TEXT NULL
+status                  ENUM NOT NULL
+sort_order              INTEGER NOT NULL
+published_at            TIMESTAMPTZ NULL
+created_at              TIMESTAMPTZ NOT NULL
+updated_at              TIMESTAMPTZ NOT NULL
+deleted_at              TIMESTAMPTZ NULL
+```
+
+Типы:
+
+```text
+course
+training
+masterclass
+intensive
+laboratory
+seminar
+school
+qualification
+other
+```
+
+## 14.2. Связанные материалы
+
+Отдельными relations поддержать:
+
+```text
+images
+video
+documents
+certificates
+external links
+```
+
+## 14.3. Запрет
+
+`training_item` не должен участвовать:
+
+* в project count;
+* в project filters;
+* в project chronology;
+* в role relations.
+
+---
+
+# 15. Миграция курсов
+
+Нужен отдельный административный migration wizard.
+
+Экран:
+
+```text
+Перенос курсов из «Другое»
+```
+
+Для каждой существующей записи показывать:
+
+```text
+[ ] Перенести
+Название
+Текущий тип
+Описание
+Дата
+Media count
+```
+
+После выбора:
+
+```text
+Предварительный просмотр
+```
+
+Администратор определяет:
+
+```text
+training type
+teacher
+organizer
+dates
+```
+
+После подтверждения:
+
+1. создаётся training item;
+2. создаются связи;
+3. файлы не копируются;
+4. source project получает ссылку на migrated entity;
+5. повторный migration блокируется;
+6. source может быть архивирован.
+
+---
+
+# 16. Внешние ссылки
+
+## 16.1. `profile_external_links`
+
+```text
+id              UUID PRIMARY KEY
+profile_id      UUID NOT NULL
+description     VARCHAR NOT NULL
+url             TEXT NOT NULL
+sort_order      INTEGER NOT NULL
+is_active       BOOLEAN NOT NULL DEFAULT true
+created_at      TIMESTAMPTZ NOT NULL
+updated_at      TIMESTAMPTZ NOT NULL
+```
+
+Номер ссылки в UI не хранить как независимое бизнес-значение.
+
+Он вычисляется:
+
+```text
+index + 1
+```
+
+по `sort_order`.
+
+---
+
+# 17. UI внешних ссылок
+
+Таблица:
+
+```text
+┌────┬────────────────────────┬──────────────────────────────┐
+│ №  │ Описание               │ Ссылка                       │
+├────┼────────────────────────┼──────────────────────────────┤
+│ 1  │ Видеовизитка           │ https://...                  │
+│ 2  │ Шоурил                 │ https://...                  │
+└────┴────────────────────────┴──────────────────────────────┘
+```
+
+Действия:
+
+```text
+Добавить
+Редактировать
+Удалить
+Открыть
+Переместить вверх
+Переместить вниз
+```
+
+В questionnaire editor у каждой ссылки отдельный checkbox.
+
+---
+
+# 18. Контакты
+
+## 18.1. `profile_contacts`
+
+```text
+id                              UUID PRIMARY KEY
+profile_id                      UUID NOT NULL
+type                            ENUM NOT NULL
+custom_type                     VARCHAR NULL
+value                           TEXT NOT NULL
+url                             TEXT NULL
+label                           VARCHAR NULL
+sort_order                      INTEGER NOT NULL
+is_active                       BOOLEAN NOT NULL DEFAULT true
+is_primary                      BOOLEAN NOT NULL DEFAULT false
+show_on_website                 BOOLEAN NOT NULL DEFAULT false
+include_in_questionnaire_default BOOLEAN NOT NULL DEFAULT false
+created_at                      TIMESTAMPTZ NOT NULL
+updated_at                      TIMESTAMPTZ NOT NULL
+```
+
+Типы:
+
+```text
+phone
+mother_phone
+father_phone
+whatsapp
+telegram
+instagram
+tiktok
+youtube
+other
+```
+
+Для `other` обязательно:
+
+```text
+custom_type IS NOT NULL
+```
+
+---
+
+# 19. Контакты конкретной анкеты
+
+Нельзя использовать только глобальный флаг.
+
+Нужна отдельная связь:
+
+## `questionnaire_contact_links`
+
+```text
+questionnaire_revision_id
+contact_id
+sort_order
+```
+
+Таким образом:
+
+```text
+Global default
+        ↓
+Questionnaire override
+```
+
+При создании новой анкеты глобальные defaults могут копироваться в draft.
+
+После этого выбор становится независимым.
+
+---
+
+# 20. Публичная страница контактов
+
+Сервер должен запрашивать только:
+
+```text
+WHERE
+profile_id = currentProfile
+AND show_on_website = true
+AND is_active = true
+```
+
+Запрещено:
+
+```text
+fetch all contacts → hide secret ones in React
+```
+
+Закрытые контакты вообще не должны передаваться браузеру.
+
+---
+
+# 21. Отображение контактов
+
+Использовать максимум три колонки.
+
+Desktop:
+
+```text
+[ ☎ +7 ... ] [ WhatsApp ... ] [ Telegram ... ]
+```
+
+Tablet:
+
+```text
+2 columns
+```
+
+Mobile:
+
+```text
+1 column
+```
+
+Каждая иконка должна иметь accessible name.
+
+Пример:
+
+```text
+aria-label="Позвонить"
+```
+
+---
+
+# 22. Модель актёрской анкеты
+
+Необходимо разделить:
+
+```text
+Questionnaire
+Questionnaire Revision
+```
+
+## 22.1. `questionnaires`
+
+```text
+id                  UUID PRIMARY KEY
+profile_id          UUID NOT NULL
+type                ENUM NOT NULL
+title               VARCHAR NOT NULL
+description         TEXT NULL
+casting_id          UUID NULL
+status              ENUM NOT NULL
+is_primary          BOOLEAN NOT NULL DEFAULT false
+allow_public_download BOOLEAN NOT NULL DEFAULT false
+show_in_download_picker BOOLEAN NOT NULL DEFAULT false
+available_from      TIMESTAMPTZ NULL
+available_until     TIMESTAMPTZ NULL
+published_revision_id UUID NULL
+created_at          TIMESTAMPTZ NOT NULL
+updated_at          TIMESTAMPTZ NOT NULL
+```
+
+Типы:
+
+```text
+compact
+extended
+casting
+custom
+```
+
+Статусы:
+
+```text
+draft
+ready
+published
+archived
+```
+
+## 22.2. `questionnaire_revisions`
+
+```text
+id                  UUID PRIMARY KEY
+questionnaire_id    UUID NOT NULL
+revision_number     INTEGER NOT NULL
+language            VARCHAR NOT NULL
+configuration       JSONB NOT NULL
+pdf_configuration   JSONB NOT NULL
+html_configuration  JSONB NOT NULL
+created_by          UUID NOT NULL
+created_at          TIMESTAMPTZ NOT NULL
+is_immutable        BOOLEAN NOT NULL DEFAULT false
+```
+
+После публикации:
+
+```text
+is_immutable = true
+```
+
+Редактирование опубликованной revision запрещено.
+
+Изменение создаёт следующую revision.
+
+---
+
+# 23. Snapshot опубликованной анкеты
+
+Публикация должна фиксировать содержимое.
+
+Например, если после публикации изменилось:
+
+```text
+описание проекта
+контакт
+фотография
+навык
+```
+
+ранее опубликованная revision не должна молча менять содержимое.
+
+Для этого необходимо хранить snapshot необходимого представления внутри revision или гарантировать immutable references.
+
+Особенно обязательно для:
+
+```text
+casting questionnaire
+```
+
+---
+
+# 24. Блоки анкеты
+
+Конструктор должен поддерживать:
+
+```text
+basic_info
+full_body_photo
+close_up_photo
+appearance
+professional_info
+skills
+languages
+projects
+roles
+performances
+emotional_grid
+training
+achievements
+video
+audio
+external_links
+extra_photos
+contacts
+```
+
+Для каждого блока:
+
+```text
+enabled
+sortOrder
+title
+mode
+maxItems
+startNewPage
+showInHtml
+showInPdf
+```
+
+---
+
+# 25. UI редактора анкеты
+
+Каждый блок показывать отдельной карточкой:
+
+```text
+☰ Эмоциональный ряд
+[x] Включить
+
+Режим: Полный
+Начинать с новой страницы: [ ]
+HTML: [x]
+PDF: [x]
+
+[Настроить содержимое]
+```
+
+Карточки должны поддерживать drag-and-drop.
+
+Порядок сохраняется в revision draft.
+
+---
+
+# 26. Readiness анкеты
+
+Отдельная панель:
+
+```text
+Готовность анкеты: 82%
+```
+
+Ниже:
+
+```text
+✓ Фото в полный рост
+✓ Фото крупным планом
+✓ Основные данные
+✗ Эмоциональный ряд не подтверждён
+✓ Контакты
+✗ Ссылка №3 недоступна
+✓ PDF preview
+```
+
+Статус `ready` запрещён, пока существует хотя бы одна blocking issue.
+
+---
+
+# 27. Тип «Компактная анкета»
+
+Создать системный template.
+
+Базовая конфигурация:
+
+```text
+basic_info
+full_body_photo
+close_up_photo
+appearance
+top_skills
+languages
+videocard
+selected_projects
+contacts
+```
+
+Это только default.
+
+Администратор может менять содержимое.
+
+---
+
+# 28. Тип «Расширенная анкета»
+
+Default может включать:
+
+```text
+basic_info
+full_body
+close_up
+appearance
+professional_info
+skills
+languages
+projects
+roles
+emotional_grid
+training
+achievements
+video
+audio
+links
+extra_photos
+contacts
+```
+
+---
+
+# 29. Тип «Для кастинга»
+
+Дополнительные поля questionnaire:
+
+```text
+casting name
+project
+role
+deadline
+```
+
+Название кастинга должно быть видно:
+
+* в админке;
+* в download picker;
+* в имени файла;
+* при включённой настройке — внутри PDF.
+
+---
+
+# 30. PDF Configuration Schema
+
+Пример структуры:
+
+```json
+{
+  "page": {
+    "size": "A4",
+    "orientation": "portrait",
+    "marginTop": 20,
+    "marginRight": 18,
+    "marginBottom": 20,
+    "marginLeft": 18
+  },
+  "header": {
+    "enabled": false
+  },
+  "footer": {
+    "enabled": true,
+    "pageNumbers": true
+  },
+  "showGenerationDate": false,
+  "showQuestionnaireTitle": true,
+  "showCastingName": true,
+  "fileNamePattern": "{actor}_{type}_{casting}_{language}_r{revision}.pdf"
+}
+```
+
+Схема должна валидироваться сервером.
+
+---
+
+# 31. Правила PDF layout
+
+## 31.1. Общие правила
+
+Запрещено:
+
+* обрезать текст за пределами страницы;
+* разрывать одну строку контакта между страницами;
+* оставлять заголовок блока последней строкой страницы;
+* создавать пустую страницу.
+
+## 31.2. Emotional Grid
+
+Изображение должно:
+
+* сохранять aspect ratio;
+* не растягиваться;
+* при необходимости масштабироваться целиком;
+* сопровождаться датой;
+* сопровождаться кликабельной ссылкой.
+
+## 31.3. Контакты
+
+Контактные элементы по возможности сохраняются одной группой.
+
+Максимум три колонки.
+
+## 31.4. Ссылки
+
+URL может визуально сокращаться, но hyperlink должен содержать полный адрес.
+
+## 31.5. Кириллица
+
+PDF renderer должен гарантировать корректное отображение кириллицы и поддерживаемых языков.
+
+---
+
+# 32. Публикация основной анкеты
+
+Server action:
+
+```text
+setPrimaryQuestionnaire(questionnaireId)
+```
+
+Алгоритм:
+
+```text
+1. Load questionnaire.
+2. Validate ownership.
+3. Validate status.
+4. Validate published revision.
+5. Validate HTML.
+6. Validate PDF.
+7. Begin transaction.
+8. Clear previous is_primary.
+9. Set new is_primary.
+10. Commit.
+11. Invalidate public cache.
+12. Add audit event.
+```
+
+Публичная ссылка должна оставаться рабочей во время переключения.
+
+---
+
+# 33. Download Picker
+
+По кнопке:
+
+```text
+Скачать PDF
+```
+
+открывать modal.
+
+Пример:
+
+```text
+Выберите актёрскую анкету
+
+Компактная анкета
+Русский
+Обновлено: 07.08.2026
+[Скачать]
+
+Расширенная анкета
+Русский
+Обновлено: 07.08.2026
+[Скачать]
+
+Кастинг «Project X»
+Русский
+Доступна до: 20.08.2026
+[Скачать]
+```
+
+Запрос возвращает только:
+
+```text
+ready/published
+allow_public_download = true
+show_in_download_picker = true
+availableFrom <= now
+availableUntil >= now OR NULL
+```
+
+---
+
+# 34. Кастинги: модель данных
+
+## 34.1. `castings`
+
+```text
+id                  UUID PRIMARY KEY
+profile_id          UUID NOT NULL
+title               VARCHAR NOT NULL
+project_name        VARCHAR NULL
+role_name           VARCHAR NULL
+company             VARCHAR NULL
+agency              VARCHAR NULL
+received_at         TIMESTAMPTZ NULL
+deadline            TIMESTAMPTZ NULL
+source_text         TEXT NULL
+status              ENUM NOT NULL
+linked_questionnaire_id UUID NULL
+source_feedback_id  UUID NULL
+created_at          TIMESTAMPTZ NOT NULL
+updated_at          TIMESTAMPTZ NOT NULL
+```
+
+Статусы:
+
+```text
+draft
+ready_for_analysis
+analyzed
+questionnaire_created
+closed
+archived
+```
+
+## 34.2. `casting_assets`
+
+```text
+id
+casting_id
+media_asset_id
+type
+caption
+sort_order
+```
+
+---
+
+# 35. ИИ-анализ кастинга: pipeline
+
+ИИ-анализ должен состоять из отдельных стадий:
+
+```text
+1. Source ingestion
+2. Image/text extraction
+3. Requirement extraction
+4. Normalization
+5. Profile matching
+6. Confidence assignment
+7. Questionnaire recommendation
+8. Human review
+9. Draft questionnaire generation
+```
+
+Стадии не должны смешиваться в одно неструктурированное поле.
+
+---
+
+# 36. Casting Analysis Revision
+
+## `casting_analysis_revisions`
+
+```text
+id
+casting_id
+revision_number
+source_snapshot
+extracted_requirements
+profile_match_result
+recommendations
+model_metadata
+prompt_version
+created_at
+created_by
+```
+
+Повторный анализ:
+
+```text
+revision 1
+revision 2
+revision 3
+```
+
+Старая версия сохраняется.
+
+---
+
+# 37. Структура extracted requirement
+
+Каждое требование хранить структурированно.
+
+Пример:
+
+```json
+{
+  "category": "age",
+  "value": "12-15",
+  "sourceType": "text",
+  "sourceReference": "paragraph-3",
+  "confidence": "high",
+  "requiresManualReview": false
+}
+```
+
+Допустимые confidence:
+
+```text
+high
+medium
+low
+manual_review
+```
+
+---
+
+# 38. Правило отсутствующих данных
+
+ИИ запрещено заполнять отсутствующее требование предположением.
+
+В UI выводить:
+
+```text
+Рост:
+Не указано в материалах кастинга
+```
+
+а не:
+
+```text
+Предположительно 150–165 см
+```
+
+---
+
+# 39. Сопоставление с профилем
+
+Пример:
+
+```text
+Требование:
+Английский язык B1+
+
+Профиль:
+English B2
+
+Результат:
+Соответствует
+
+Источник:
+Профиль → Языки
+```
+
+Другой пример:
+
+```text
+Требование:
+Верховая езда
+
+Профиль:
+Нет данных
+
+Результат:
+Данные отсутствуют
+```
+
+---
+
+# 40. AI Recommendations
+
+Каждая рекомендация должна иметь структуру:
+
+```json
+{
+  "section": "skills",
+  "action": "include",
+  "reason": "В кастинге явно указано требование сценического движения",
+  "sourceRequirementIds": ["..."],
+  "selectedEntityIds": ["..."],
+  "requiresApproval": true
+}
+```
+
+Actions:
+
+```text
+include
+exclude
+include_compact
+include_full
+manual_review
+```
+
+---
+
+# 41. UI анализа кастинга
+
+Экран делится минимум на четыре зоны:
+
+```text
+Исходные материалы
+Требования
+Сопоставление
+Рекомендации по анкете
+```
+
+Администратор должен иметь возможность:
+
+* просмотреть source;
+* изменить неверно распознанное требование;
+* удалить ошибочно найденное требование;
+* изменить рекомендацию;
+* заменить фотографию;
+* изменить порядок блоков;
+* добавить или исключить проект.
+
+---
+
+# 42. Создание кастинговой анкеты
+
+Кнопка:
+
+```text
+Создать черновик анкеты
+```
+
+Алгоритм:
+
+```text
+1. Load selected analysis revision.
+2. Verify approved recommendations.
+3. Create questionnaire(type=casting).
+4. Create questionnaire revision.
+5. Copy selected configuration.
+6. Link casting.
+7. status=draft.
+8. Do not publish.
+9. Do not enable public download.
+10. Add audit event.
+```
+
+---
+
+# 43. Публичная форма обратной связи
+
+## Обязательные поля
+
+```text
+Имя
+Тип обращения
+Тема
+Сообщение
+Хотя бы один контакт
+Согласие
+```
+
+Дополнительные:
+
+```text
+Фамилия
+Компания
+Должность
+Проект
+Роль
+Email
+Телефон
+WhatsApp
+Telegram
+Deadline
+URL
+Attachments
+```
+
+---
+
+# 44. Feedback Data Model
+
+## `feedback_messages`
+
+```text
+id                      UUID PRIMARY KEY
+public_number           VARCHAR UNIQUE NOT NULL
+profile_id              UUID NOT NULL
+type                    ENUM NOT NULL
+source_page             TEXT NULL
+sender_name             VARCHAR NOT NULL
+sender_surname          VARCHAR NULL
+organization            VARCHAR NULL
+position                VARCHAR NULL
+subject                 VARCHAR NOT NULL
+message                 TEXT NOT NULL
+preferred_contact_type  ENUM NULL
+read_status             ENUM NOT NULL
+workflow_status         ENUM NOT NULL
+priority                ENUM NOT NULL DEFAULT normal
+assigned_to             UUID NULL
+next_action_at          TIMESTAMPTZ NULL
+created_at              TIMESTAMPTZ NOT NULL
+updated_at              TIMESTAMPTZ NOT NULL
+archived_at             TIMESTAMPTZ NULL
+```
+
+## Статусы прочтения
+
+```text
+unread
+read
+```
+
+## Workflow
+
+```text
+new
+in_progress
+waiting_information
+waiting_decision
+reply_sent
+completed
+rejected
+spam
+archived
+```
+
+Priority:
+
+```text
+low
+normal
+high
+urgent
+```
+
+---
+
+# 45. Feedback Contacts
+
+## `feedback_sender_contacts`
+
+```text
+id
+feedback_id
+type
+value
+is_preferred
+```
+
+Типы:
+
+```text
+email
+phone
+whatsapp
+telegram
+other
+```
+
+Должна существовать минимум одна запись.
+
+---
+
+# 46. Feedback Attachments
+
+## `feedback_attachments`
+
+```text
+id
+feedback_id
+original_name
+storage_path
+mime_type
+detected_mime_type
+size_bytes
+checksum
+security_status
+created_at
+```
+
+Статусы:
+
+```text
+pending
+accepted
+rejected
+```
+
+Файл не должен иметь прямой публичный URL.
+
+---
+
+# 47. Алгоритм отправки формы
+
+Критически важная последовательность:
+
+```text
+Validate input
+        ↓
+Validate rate limit
+        ↓
+Validate files
+        ↓
+Save feedback
+        ↓
+Commit DB
+        ↓
+Return success/public number
+        ↓
+Create internal notification
+        ↓
+Queue WhatsApp notification
+```
+
+WhatsApp нельзя выполнять до commit обращения.
+
+Если WhatsApp недоступен:
+
+```text
+обращение всё равно принято
+```
+
+---
+
+# 48. Защита от двойной отправки
+
+Необходимо использовать idempotency mechanism.
+
+Например:
+
+```text
+submission token
+```
+
+или
+
+```text
+request fingerprint + short TTL
+```
+
+Двойной click не должен создавать два сообщения.
+
+---
+
+# 49. Административный Inbox
+
+Таблица:
+
+```text
+№
+Дата
+Unread
+Status
+Priority
+Тип
+Имя
+Организация
+Тема
+Preferred contact
+Attachments
+Assigned
+Next action
+```
+
+Должны быть доступны:
+
+```text
+search
+filter
+sort
+pagination
+```
+
+---
+
+# 50. Карточка обращения
+
+Показать:
+
+```text
+public number
+created date
+source page
+sender
+organization
+position
+all contacts
+preferred contact
+subject
+full message
+casting fields
+attachments
+workflow
+priority
+responsible
+next action
+internal notes
+notification history
+linked casting
+```
+
+---
+
+# 51. Internal Notes
+
+## `feedback_notes`
+
+```text
+id
+feedback_id
+author_id
+text
+created_at
+updated_at
+```
+
+Заметка:
+
+* не видна посетителю;
+* не отправляется WhatsApp;
+* не включается в кастинговую анкету.
+
+---
+
+# 52. Создание кастинга из Feedback
+
+Кнопка:
+
+```text
+Создать кастинг
+```
+
+До выполнения показать mapping:
+
+```text
+Название ← Subject
+Компания ← Organization
+Проект ← Project
+Роль ← Role
+Deadline ← Deadline
+Требования ← Message
+Attachments ← selected attachments
+```
+
+Каждое поле можно:
+
+```text
+[x] Перенести
+[ ] Не переносить
+```
+
+После создания установить двустороннюю связь.
+
+---
+
+# 53. WhatsApp Notifications Data Model
+
+## `notifications`
+
+```text
+id
+profile_id
+feedback_id
+channel
+recipient
+type
+status
+idempotency_key
+attempt_count
+next_attempt_at
+provider_message_id
+last_error_code
+last_error_message
+created_at
+updated_at
+sent_at
+delivered_at
+```
+
+Status:
+
+```text
+pending
+processing
+sent
+delivered
+failed
+retrying
+cancelled
+```
+
+Уникальность:
+
+```text
+UNIQUE(idempotency_key)
+```
+
+Ключ:
+
+```text
+feedback:{feedbackId}:recipient:{recipientId}:new-feedback
+```
+
+---
+
+# 54. WhatsApp Retry
+
+Для временной ошибки:
+
+```text
+pending
+→ processing
+→ failed temporary
+→ retrying
+```
+
+Количество повторов должно быть ограничено.
+
+Permanent failure:
+
+```text
+failed
+```
+
+и создаётся внутреннее уведомление администратора.
+
+Запрещены бесконечные retry.
+
+---
+
+# 55. WhatsApp Privacy
+
+По умолчанию уведомление содержит только:
+
+```text
+Номер
+Тип
+Имя
+Организация
+Тема
+Дата
+Admin URL
+```
+
+Не передавать по умолчанию:
+
+```text
+полный текст
+email
+телефон
+attachments
+внутренние заметки
+```
+
+---
+
+# 56. Notification Center
+
+Типы внутренних уведомлений:
+
+```text
+new_feedback
+whatsapp_failed
+feedback_overdue
+feedback_unassigned
+casting_deadline_soon
+```
+
+Каждое уведомление должно иметь:
+
+```text
+entityType
+entityId
+title
+message
+status
+createdAt
+```
+
+Нажатие открывает соответствующую сущность.
+
+---
+
+# 57. AI Theme Builder
+
+ИИ не должен генерировать и напрямую выполнять произвольный CSS.
+
+ИИ должен возвращать только валидируемую структуру theme configuration.
+
+Пример:
+
+```json
+{
+  "name": "Cinematic Warm",
+  "mode": "dark",
+  "colors": {
+    "backgroundPrimary": "#...",
+    "backgroundSecondary": "#...",
+    "surface": "#...",
+    "textPrimary": "#...",
+    "textSecondary": "#...",
+    "accentPrimary": "#...",
+    "accentSecondary": "#...",
+    "link": "#...",
+    "buttonPrimary": "#...",
+    "buttonPrimaryText": "#...",
+    "border": "#...",
+    "focus": "#..."
+  },
+  "radius": {
+    "card": 16,
+    "button": 12
+  },
+  "shadow": {
+    "card": "medium"
+  },
+  "motion": {
+    "intensity": "subtle"
+  }
+}
+```
+
+Сервер обязан валидировать output schema.
+
+---
+
+# 58. Theme Data Model
+
+## `site_themes`
+
+```text
+id
+profile_id
+name
+description
+source_prompt
+status
+is_temporary
+start_at
+end_at
+fallback_theme_id
+published_revision_id
+created_by
+created_at
+updated_at
+```
+
+## `site_theme_revisions`
+
+```text
+id
+theme_id
+revision
+configuration JSONB
+hero_configuration JSONB
+validation_result JSONB
+is_immutable
+created_by
+created_at
+```
+
+Published revision immutable.
+
+---
+
+# 59. AI Theme Editor UI
+
+Экран должен содержать:
+
+```text
+Опишите желаемое оформление
+[................................]
+
+Режим:
+( ) Светлый
+( ) Тёмный
+( ) Автоматически
+
+Стиль:
+[ ] Театральный
+[ ] Кинематографичный
+[ ] Минималистичный
+[ ] Спокойный
+[ ] Выразительный
+
+[Создать вариант]
+```
+
+После генерации показывать:
+
+```text
+AI предложение
+Current value
+Proposed value
+Lock
+Edit
+```
+
+---
+
+# 60. Lock Design Tokens
+
+Для каждого параметра:
+
+```text
+🔒 backgroundPrimary
+🔓 accentPrimary
+```
+
+При повторной генерации locked values должны передаваться как immutable constraints.
+
+ИИ не должен их менять.
+
+---
+
+# 61. Hero Editor
+
+Источники:
+
+```text
+текущая фотография
+portfolio item
+media library
+solid background
+gradient
+decorative background
+```
+
+Настройки:
+
+```text
+crop
+position
+zoom
+overlay opacity
+text alignment
+desktop crop
+mobile crop
+```
+
+Оригинальный файл не изменяется.
+
+---
+
+# 62. Theme Scope
+
+ИИ разрешено менять:
+
+```text
+colors
+surface
+typography scale
+border radius
+shadows
+hero composition
+button appearance
+card appearance
+decorative background
+motion intensity
+```
+
+ИИ запрещено менять:
+
+```text
+routes
+text content
+contacts
+profile facts
+projects
+questionnaire content
+permissions
+SEO text
+security
+form fields
+business logic
+```
+
+---
+
+# 63. Theme Accessibility Validation
+
+До публикации проверить минимум:
+
+```text
+body text/background
+secondary text/background
+links/background
+primary button/text
+secondary button/text
+form input/text
+focus indicator/background
+contact cards
+feedback form
+hero text/hero background
+```
+
+Critical failure → Publish disabled.
+
+---
+
+# 64. Theme Preview
+
+Preview обязательно должен поддерживать:
+
+```text
+Desktop
+Tablet
+Mobile
+```
+
+и страницы:
+
+```text
+Home
+Profile
+Portfolio
+Emotional Portfolio
+Projects
+Training
+Questionnaire
+Contacts
+Feedback Form
+PDF Picker
+```
+
+Черновой preview требует административного доступа.
+
+---
+
+# 65. Side-by-Side Theme Preview
+
+Рекомендуемый обязательный режим:
+
+```text
+Текущая тема | Новый вариант
+```
+
+с синхронным viewport.
+
+Это позволяет сравнить визуальные изменения до публикации.
+
+---
+
+# 66. Theme Publication
+
+Алгоритм:
+
+```text
+1. Validate revision.
+2. Validate accessibility.
+3. Create immutable revision.
+4. Begin transaction.
+5. Set published revision.
+6. Commit.
+7. Invalidate public cache.
+8. Save audit event.
+```
+
+Не допускается частичное обновление отдельных страниц.
+
+---
+
+# 67. Rollback темы
+
+Кнопка:
+
+```text
+Вернуть предыдущую тему
+```
+
+должна создавать новую публикацию на основании старого snapshot.
+
+История не переписывается.
+
+То есть:
+
+```text
+Revision 1
+Revision 2
+Revision 3
+Rollback to Revision 1
+→ Revision 4 based on Revision 1
+```
+
+---
+
+# 68. Временные темы
+
+Поля:
+
+```text
+start_at
+end_at
+fallback_theme_id
+```
+
+Перед активацией проверить fallback.
+
+Если fallback отсутствует или архивирован, временная тема не может быть запланирована.
+
+После `end_at` должна активироваться fallback revision.
+
+---
+
+# 69. Конкурентное редактирование
+
+Для основных редакторов требуется optimistic locking.
+
+Минимальная модель:
+
+```text
+updated_at
+```
+
+или:
+
+```text
+version integer
+```
+
+При сохранении клиент передаёт ожидаемую версию.
+
+Если объект был изменён другим пользователем:
+
+```text
+409 Conflict
+```
+
+UI:
+
+```text
+Эта запись была изменена другим пользователем.
+Обновите данные перед сохранением.
+```
+
+Запрещено молча перезаписывать новую версию старой.
+
+---
+
+# 70. Soft Delete
+
+Для связанных сущностей использовать soft delete или archive.
+
+Нельзя физически удалить объект, если его использует:
+
+```text
+published questionnaire
+emotional grid
+published site
+casting
+```
+
+UI должен сообщить конкретные зависимости.
+
+Пример:
+
+```text
+Фотография используется:
+— Расширенная анкета, revision 4
+— Эмоциональный ряд «Весна 2026»
+
+Удаление невозможно.
+```
+
+---
+
+# 71. Audit Log
+
+## `audit_events`
+
+```text
+id
+profile_id
+actor_id
+entity_type
+entity_id
+action
+old_revision_id
+new_revision_id
+metadata
+created_at
+```
+
+Не записывать в metadata:
+
+```text
+password
+OAuth token
+полный приватный контакт без необходимости
+secret
+```
+
+---
+
+# 72. Обязательные audit events
+
+Фиксировать:
+
+```text
+portfolio.created
+portfolio.updated
+portfolio.published
+
+emotional_portfolio.created
+emotional_grid.rendered
+emotional_grid.published
+
+questionnaire.created
+questionnaire.revision_created
+questionnaire.published
+questionnaire.primary_changed
+
+casting.created
+casting.analysis_started
+casting.analysis_completed
+casting.questionnaire_created
+
+feedback.received
+feedback.status_changed
+feedback.casting_created
+
+notification.sent
+notification.failed
+
+theme.generated
+theme.updated
+theme.published
+theme.rolled_back
+
+migration.executed
+```
+
+---
+
+# 73. SEO публичных разделов
+
+Для:
+
+```text
+Portfolio
+Emotional Portfolio
+Training
+Questionnaire
+Contacts
+```
+
+поддержать:
+
+```text
+title
+description
+canonical
+OG image
+localized metadata
+indexing flag
+```
+
+Административные и закрытые URL никогда не должны индексироваться.
+
+---
+
+# 74. Accessibility
+
+Каждый новый экран обязан поддерживать:
+
+```text
+keyboard navigation
+visible focus
+proper labels
+accessible icon names
+modal focus trap
+Escape close
+form error association
+logical tab order
+```
+
+PDF picker и feedback modal должны быть полностью доступны с клавиатуры.
+
+---
+
+# 75. Производительность изображений
+
+Публичные галереи не должны загружать master/original изображения для thumbnail view.
+
+Использовать:
+
+```text
+thumbnail
+web derivative
+lazy loading
+responsive sizes
+```
+
+Original открывать только по отдельному действию, если это разрешено.
+
+---
+
+# 76. Производительность Emotional Grid
+
+Во время каждого движения crop нельзя синхронно генерировать master-resolution grid.
+
+UI использует быстрый preview.
+
+Master render выполняется:
+
+```text
+on save/final render
+```
+
+---
+
+# 77. PDF Generation
+
+Генерация PDF не должна блокировать административную страницу.
+
+UI должен поддерживать состояния:
+
+```text
+Не сформирован
+Формируется
+Готов
+Ошибка
+Устарел
+```
+
+После изменения связанного draft:
+
+```text
+PDF = stale
+```
+
+---
+
+# 78. Feature Flags
+
+Предусмотреть возможность отдельно включать:
+
+```text
+emotionalPortfolioV2
+trainingSection
+questionnaireVariants
+castings
+feedback
+whatsappNotifications
+aiThemeBuilder
+```
+
+Это позволяет развернуть код до момента включения функции.
+
+---
+
+# 79. Health Status дополнительных компонентов
+
+В настройках администратора показывать:
+
+```text
+Media storage: OK/Error
+PDF renderer: OK/Error
+AI: Configured/Not configured
+WhatsApp: Configured/Not configured
+```
+
+Недоступность optional AI или WhatsApp не должна ломать публичный сайт.
+
+---
+
+# 80. Default Questionnaire Templates
+
+Создать три системных шаблона:
+
+```text
+Compact
+Extended
+Casting
+```
+
+Системный template нельзя случайно удалить.
+
+Пользователь может:
+
+```text
+Duplicate → Custom questionnaire
+```
+
+---
+
+# 81. Миграция эмоциональных проектов
+
+Перед migration:
+
+```text
+dry run
+```
+
+Отчёт:
+
+```text
+Found: 3 emotional projects
+Photos: 47
+Videos: 6
+Questionnaire relations: 2
+Conflicts: 0
+```
+
+Только после подтверждения выполнять запись.
+
+Migration должна быть идемпотентной.
+
+---
+
+# 82. Миграция обязательных фотографий
+
+Существующие:
+
+```text
+full body
+close-up
+```
+
+если они используются анкетой, должны получить соответствующие `portfolio_items`.
+
+Исходный media asset не копируется.
+
+---
+
+# 83. Идемпотентность migration
+
+Повторный запуск должен возвращать:
+
+```text
+Already migrated
+```
+
+а не создавать дубль.
+
+Хранить:
+
+```text
+source_entity_type
+source_entity_id
+migration_version
+target_entity_id
+```
+
+---
+
+# 84. Error Cases: Emotional Grid
+
+Обязательно обработать:
+
+### Исходная фотография удалена
+
+```text
+Grid status → invalid
+Cell → needs_adjustment
+Render prohibited
+```
+
+### Изменился crop
+
+```text
+derivatives → stale
+```
+
+### Изменился размер сетки
+
+Пользователь должен получить предупреждение:
+
+```text
+Изменение размера может удалить часть текущих ячеек.
+```
+
+### Недостаточно фотографий
+
+Не запрещать использовать одну исходную фотографию повторно только если это явно разрешено требованиями продукта.
+
+По умолчанию UI должен предупреждать о повторе.
+
+---
+
+# 85. Error Cases: Questionnaire
+
+### Published media became unavailable
+
+Опубликованная immutable revision должна сохранять доступную snapshot-версию либо явно фиксировать ошибку доставки.
+
+### PDF renderer unavailable
+
+Публикация новой revision блокируется.
+
+Существующая опубликованная revision остаётся доступной.
+
+### Два администратора редактируют
+
+Сработать optimistic lock.
+
+---
+
+# 86. Error Cases: Feedback
+
+### WhatsApp failed
+
+Feedback = сохранён.
+
+### Duplicate request
+
+Вернуть существующий public number, если безопасно распознана та же idempotent submission.
+
+### Attachment rejected
+
+Форма должна показать, какой именно файл отклонён.
+
+### Rate limit
+
+Показать понятное сообщение без раскрытия внутренних лимитов.
+
+---
+
+# 87. Error Cases: Theme
+
+### AI вернул невалидную схему
+
+Не сохранять как готовую theme revision.
+
+Показать:
+
+```text
+Не удалось сформировать корректную тему.
+```
+
+### Fallback temporary theme удалён
+
+Не разрешать удаление активного fallback.
+
+### Publication failure
+
+Текущая production theme должна остаться неизменной.
+
+---
+
+# 88. Логирование ошибок
+
+Структурированно логировать:
+
+```text
+pdf_generation_failed
+image_render_failed
+ai_analysis_failed
+theme_generation_failed
+theme_publish_failed
+whatsapp_send_failed
+migration_failed
+```
+
+Application logs не должны содержать:
+
+```text
+passwords
+OAuth tokens
+полный текст приватного сообщения без необходимости
+```
+
+---
+
+# 89. Unit Tests
+
+Минимально покрыть:
+
+```text
+allowed grid sizes
+grid cell count
+crop persistence
+grid validation
+primary portfolio photo constraints
+questionnaire readiness
+questionnaire revision immutability
+contact filtering
+external links ordering
+casting requirement normalization
+recommendation structure
+feedback validation
+feedback idempotency
+notification idempotency
+theme schema validation
+theme locked tokens
+```
+
+---
+
+# 90. Integration Tests
+
+Проверить:
+
+```text
+PostgreSQL constraints
+cross-profile protection
+transactional primary questionnaire switch
+transactional theme publish
+media references
+migration idempotency
+feedback save before notification
+notification retry
+published revision immutability
+```
+
+---
+
+# 91. E2E Scenario A — Emotional Portfolio
+
+```text
+Login
+→ Emotional Portfolio
+→ Create shoot
+→ Add shooting date
+→ Add 16 photos
+→ Create 4x4 grid
+→ Crop every image
+→ Confirm all cells
+→ Render
+→ Publish
+→ Open public emotional portfolio
+→ Verify grid
+```
+
+---
+
+# 92. E2E Scenario B — Portfolio and Questionnaire
+
+```text
+Create full-body portfolio item
+Create close-up portfolio item
+Mark primary
+Create compact questionnaire
+Verify auto-default photos
+Generate PDF
+Publish
+Open public questionnaire
+Download PDF
+```
+
+---
+
+# 93. E2E Scenario C — Questionnaire Picker
+
+```text
+Create compact
+Create extended
+Create casting questionnaire
+Enable public download
+Open site
+Click Download PDF
+Verify 3 options
+Download each
+Verify filename
+```
+
+---
+
+# 94. E2E Scenario D — Casting AI
+
+```text
+Create casting
+Paste text
+Attach screenshot
+Start analysis
+Verify extracted requirements
+Verify missing field labels
+Edit recommendation
+Create casting questionnaire
+Verify draft only
+```
+
+---
+
+# 95. E2E Scenario E — Feedback
+
+```text
+Open contacts
+Submit casting invitation
+Receive confirmation number
+Login admin
+Verify unread badge
+Open feedback
+Add note
+Create casting
+Verify bilateral link
+```
+
+---
+
+# 96. E2E Scenario F — WhatsApp Failure
+
+```text
+Submit feedback
+Simulate provider failure
+Verify feedback saved
+Verify admin notification
+Verify notification status failed
+Retry
+Verify no duplicate feedback
+```
+
+---
+
+# 97. E2E Scenario G — AI Theme
+
+```text
+Open Theme Builder
+Enter prompt
+Generate theme
+Lock accent color
+Regenerate
+Verify accent unchanged
+Preview desktop
+Preview mobile
+Publish
+Verify public site
+Rollback
+Verify previous theme restored
+```
+
+---
+
+# 98. Definition of Done для каждого GitHub Issue
+
+Каждая задача должна оформляться по следующему шаблону:
+
+```text
+## Goal
+Какой пользовательский результат должен появиться.
+
+## Scope
+Что входит в задачу.
+
+## Out of scope
+Что намеренно не входит.
+
+## Dependencies
+Какие задачи должны быть выполнены раньше.
+
+## Data model
+Какие таблицы/поля/constraints меняются.
+
+## Backend
+Какие server actions/API реализуются.
+
+## Admin UI
+Какие административные экраны меняются.
+
+## Public UI
+Какие публичные экраны меняются.
+
+## Validation
+Все бизнес-проверки.
+
+## Permissions
+Кто может выполнять действие.
+
+## Error cases
+Какие ошибки должны быть обработаны.
+
+## Migration
+Нужна ли миграция.
+
+## Tests
+Unit / Integration / E2E.
+
+## Acceptance criteria
+Однозначные проверки результата.
+
+## Documentation
+Какие документы необходимо обновить.
+```
+
+Issue нельзя закрывать, если заполнен только UI и отсутствует необходимая серверная часть или тесты.
+
+---
+
+# 99. Зависимости основных EPIC
+
+Рекомендуемый dependency graph:
+
+```text
+MEDIA / BASE PROFILE
+        │
+        ├── Portfolio
+        │      └── Questionnaire
+        │
+        ├── Emotional Portfolio
+        │      └── Emotional Grid
+        │             └── Questionnaire
+        │
+        ├── Training
+        │      └── Questionnaire
+        │
+        ├── Contacts
+        │      ├── Questionnaire
+        │      └── Public Contacts
+        │
+        ├── External Links
+        │      └── Questionnaire
+        │
+        ├── Casting
+        │      ├── AI Analysis
+        │      └── Casting Questionnaire
+        │
+        ├── Feedback
+        │      ├── Notifications
+        │      ├── WhatsApp
+        │      └── Casting
+        │
+        └── Theme Model
+               └── AI Theme Builder
+                      └── Preview
+                             └── Publish/Rollback
+```
+
+---
+
+# 100. Порядок разработки
+
+## Phase 1 — база
+
+Реализовать:
+
+```text
+database migrations
+shared validation
+profile ownership guards
+audit framework
+```
+
+## Phase 2 — контент
+
+```text
+Portfolio
+Emotional Portfolio
+Emotional Grid
+Training
+Contacts
+External Links
+```
+
+## Phase 3 — Questionnaire V2
+
+```text
+Questionnaire types
+Revisions
+Section builder
+PDF config
+HTML config
+Readiness
+Publication
+PDF Picker
+```
+
+## Phase 4 — Migration
+
+```text
+Emotional Project → Emotional Portfolio
+Other Project → Training
+Questionnaire Photos → Portfolio
+```
+
+## Phase 5 — Castings
+
+```text
+Casting entity
+Source materials
+AI extraction
+Matching
+Recommendations
+Casting Questionnaire
+```
+
+## Phase 6 — Feedback
+
+```text
+Public Form
+Attachments
+Admin Inbox
+Workflow
+Notes
+Create Casting
+```
+
+## Phase 7 — Notifications
+
+```text
+Internal Notification Center
+WhatsApp queue
+Retry
+Quiet hours
+```
+
+## Phase 8 — Theme System
+
+```text
+Theme schema
+Manual editor
+AI generator
+Hero editor
+Accessibility validation
+Preview
+Publish
+Rollback
+Temporary themes
+```
+
+## Phase 9 — QA
+
+```text
+Migration tests
+Unit
+Integration
+E2E
+Accessibility
+Production build
+Regression
+Documentation
+```
+
+---
+
+# 101. Финальная приёмка
+
+Разработка считается полностью завершённой только если одновременно подтверждено:
+
+```text
+Emotional Portfolio отделено от Projects.
+Emotional Grid работает для всех размеров 1x2–4x4.
+Каждая ячейка имеет независимый crop.
+Исходные фото не модифицируются.
+Правило крупного лица проверяется.
+Дата съёмки обязательна.
+Questionnaire получает только готовую grid + ссылку.
+Portfolio является самостоятельной сущностью.
+Full-body и close-up берутся только из Portfolio.
+Дополнительные фотографии выбираются независимо.
+Training отделён от Projects.
+External Links имеют структурированный редактор.
+Contacts имеют независимые site/questionnaire visibility.
+Public Contacts не раскрывает скрытые данные.
+Questionnaire поддерживает независимые типы и revisions.
+Published questionnaire revision immutable.
+PDF имеет независимые настройки.
+Download Picker предлагает доступные варианты.
+Casting существует отдельно от Projects.
+AI не придумывает отсутствующие факты.
+AI recommendations имеют источник и причину.
+Casting questionnaire создаётся Draft.
+Feedback сохраняется независимо от уведомлений.
+Admin Inbox содержит workflow и unread badge.
+Feedback можно превратить в Casting.
+WhatsApp failure не теряет сообщение.
+Notification duplicate protection работает.
+Attachments не имеют публичного доступа.
+Theme Builder использует структурированные tokens.
+AI не исполняет произвольный CSS.
+Theme preview работает для Desktop/Tablet/Mobile.
+Accessibility validation выполняется до публикации.
+Theme publish атомарен.
+Rollback создаёт новую revision.
+Temporary themes возвращаются к fallback.
+Cross-profile relations блокируются сервером.
+Optimistic locking защищает от потери изменений.
+Все migrations идемпотентны.
+Все обязательные Unit tests проходят.
+Все Integration tests проходят.
+Все E2E scenarios проходят.
+Accessibility tests проходят.
+Production build проходит.
+Regression существующих функций отсутствует.
+Документация обновлена.
+```
+
+---
+
+# 102. Результат реализации
+
+После выполнения настоящего ТЗ сайт должен представлять собой не только публичное актёрское портфолио, но и полноценную систему управления профессиональными материалами актрисы:
+
+```text
+PROFILE
+│
+├── PORTFOLIO
+│   ├── Full Body
+│   ├── Close-Up
+│   └── Additional Photos
+│
+├── EMOTIONAL PORTFOLIO
+│   ├── Original Photos
+│   └── Emotional Grids
+│
+├── PROJECTS
+│
+├── TRAINING
+│
+├── QUESTIONNAIRES
+│   ├── Compact
+│   ├── Extended
+│   ├── Casting
+│   └── Custom
+│
+├── CASTINGS
+│   ├── Source Materials
+│   ├── AI Analysis
+│   ├── Recommendations
+│   └── Questionnaire Draft
+│
+├── CONTACTS
+│
+├── FEEDBACK
+│   ├── Inbox
+│   ├── Workflow
+│   ├── Notifications
+│   └── WhatsApp
+│
+└── SITE THEMES
+    ├── Manual Configuration
+    ├── AI Proposal
+    ├── Preview
+    ├── Publish
+    ├── Rollback
+    └── Temporary Themes
+```
+
+Все основные процессы должны оставаться под контролем администратора: ИИ предоставляет анализ и предложения, но не публикует контент, не изменяет фактические данные профиля, не изменяет внешность актрисы и не принимает окончательные решения без явного подтверждения пользователя.

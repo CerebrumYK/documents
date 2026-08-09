@@ -91,15 +91,15 @@ These are implementation instructions/specifications, not evidence that the inte
 
 | DOC family | Documentation | Implementation baseline |
 |---|---|---|
-| DOC-001 | Source available in supplied package | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-010…015 Product | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-020…030 Journey/automation | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-040…050 UX | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-060…064 Domain | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-070…080 Architecture | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-090…094 Database | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-100…103 API | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-110…134 Modules | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-001 | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-010…015 Product | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-020…030 Journey/automation | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-040…050 UX | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-060…064 Domain | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-070…080 Architecture | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-090…094 Database | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-100…103 API | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-110…134 Modules | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |
 | DOC-140…146 Security | Canonical docs present | NOT_VERIFIED against application |
 | DOC-150…156 NFR/UI quality | Canonical docs present | NOT_VERIFIED against application |
 | DOC-160…165 Migration | Canonical docs present | NOT_VERIFIED / future execution |

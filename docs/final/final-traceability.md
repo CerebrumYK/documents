@@ -1,4 +1,7 @@
 # FINAL TRACEABILITY
+
+> **Repository-presence status note (2026-08-09):** statements in this historical audit about DOC-001…134 being unavailable/not imported are superseded by DOC-236 `docs/final/canonical-import-verification.md`. Canonical import is complete; implementation remains evidence-gated.
+
 ## DOC-232 — фактическая traceability matrix текущего documentation repository
 
 **Статус:** Canonical / Final Traceability
