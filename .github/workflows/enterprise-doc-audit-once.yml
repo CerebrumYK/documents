@@ -22,31 +22,28 @@ jobs:
           from pathlib import Path
           import re, collections
 
-          root=Path('.')
           canonical=[]
           for p in Path('docs').rglob('*.md'):
             s=str(p)
             if '/archive/' in s or '/source-materials/' in s:
               continue
             canonical.append(p)
-
           print('CANONICAL_MD_COUNT',len(canonical))
 
-          # Primary DOC IDs: inspect title prefix only to avoid references later in body.
+          # Primary DOC ID: use explicit document declaration, then DOC heading.
           prim=[]
           for p in canonical:
             text=p.read_text(encoding='utf-8',errors='replace')
-            head='\n'.join(text.splitlines()[:20])
-            m=re.search(r'\bDOC-(\d{3})\b',head)
-            if m:
-              prim.append((int(m.group(1)),str(p)))
+            head='\n'.join(text.splitlines()[:60])
+            m=(re.search(r'\*\*(?:Документ|Document):\*\*\s*DOC-(\d{3})\b',head,re.I)
+               or re.search(r'^##\s+DOC-(\d{3})\b',head,re.M))
+            if m: prim.append((int(m.group(1)),str(p)))
           by=collections.defaultdict(list)
           for n,p in prim: by[n].append(p)
           dup={n:ps for n,ps in by.items() if len(ps)>1}
           print('PRIMARY_DOC_IDS',len(by))
           print('DUP_PRIMARY_DOC_IDS',dup)
 
-          # Expected currently governed IDs.
           expected={1,2,3}
           expected.update(range(10,16)); expected.update(range(20,31)); expected.update(range(40,51))
           expected.update(range(60,65)); expected.update(range(70,81)); expected.update(range(90,95)); expected.update(range(100,104))
@@ -56,7 +53,7 @@ jobs:
           missing=sorted(expected-set(by))
           print('MISSING_EXPECTED_PRIMARY_DOC_IDS',missing)
 
-          # Broken relative markdown file links.
+          # Broken relative markdown links.
           broken=[]
           linkre=re.compile(r'\[[^\]]*\]\(([^)]+)\)')
           for p in canonical+[Path('README.md')]:
@@ -64,54 +61,52 @@ jobs:
             text=p.read_text(encoding='utf-8',errors='replace')
             for raw in linkre.findall(text):
               target=raw.strip().split('#',1)[0].strip()
-              if not target or target.startswith(('http://','https://','mailto:','tel:','#')):
-                continue
+              if not target or target.startswith(('http://','https://','mailto:','tel:','#')): continue
               target=target.split(' ',1)[0].strip('<>')
               q=(p.parent/target).resolve()
               if not q.exists(): broken.append((str(p),raw))
           print('BROKEN_RELATIVE_LINK_COUNT',len(broken))
           for x in broken[:200]: print('BROKEN_LINK',*x)
 
-          # Stale import/repository status markers after DOC-236.
-          stale_terms=[
-            'EXPECTED_NOT_IMPORTED','SOURCE_PACKAGE_AVAILABLE','not yet present in this repository',
-            'not physically present','still require import','import/reconciliation still pending',
-            'INCOMPLETE UNTIL EARLIER DOC-001…134','earlier DOC-001…134 ARE IMPORTED',
-          ]
+          # Stale repository/import status after DOC-236.
+          stale_terms=['EXPECTED_NOT_IMPORTED','SOURCE_PACKAGE_AVAILABLE','not yet present in this repository','not physically present','still require import','import/reconciliation still pending','INCOMPLETE UNTIL EARLIER DOC-001…134','earlier DOC-001…134 ARE IMPORTED']
           for term in stale_terms:
-            hits=[]
             for p in canonical:
-              txt=p.read_text(encoding='utf-8',errors='replace')
-              if term.lower() in txt.lower(): hits.append(str(p))
-            if hits: print('STALE_TERM',repr(term),hits)
+              lines=p.read_text(encoding='utf-8',errors='replace').splitlines()
+              for i,line in enumerate(lines,1):
+                if term.lower() in line.lower(): print('STALE_TERM',repr(term),f'{p}:{i}',line.strip())
 
-          # Known stale canonical aliases.
-          aliases=['database-schema.md','visibility-model.md','validation-rules.md','deletion-retention.md','domain-relationships.md','media-architecture.md']
+          # Stale path aliases: print exact context.
+          aliases=['database-schema.md','visibility-model.md','validation-rules.md','deletion-retention.md','domain-relationships.md','media-architecture.md','docs/domain/relationships.md','docs/domain/revisions.md']
           for a in aliases:
-            hits=[]
             for p in canonical:
-              txt=p.read_text(encoding='utf-8',errors='replace')
-              if a in txt: hits.append(str(p))
-            if hits: print('STALE_ALIAS',a,hits)
+              lines=p.read_text(encoding='utf-8',errors='replace').splitlines()
+              for i,line in enumerate(lines,1):
+                if a in line: print('STALE_ALIAS',a,f'{p}:{i}',line.strip())
 
-          # Stack vocabulary inventory. Context is intentionally printed for manual interpretation.
-          terms=['Supabase','Firebase','MongoDB','MySQL','SQLite','Redis','RabbitMQ','Kafka','BullMQ','Prisma','Drizzle','Kysely','Knex','Sequelize','TypeORM','Docker','Kubernetes','Tailwind','shadcn','Material UI','MUI','Vitest','Jest','Playwright','Cypress','Zod','Pino','OpenTelemetry','S3','MinIO','Cloudflare R2','Meilisearch','Elasticsearch']
+          # Technology vocabulary contexts for manual classification.
+          terms=['Supabase','SQLite','Redis','RabbitMQ','Kafka','BullMQ','Prisma','Drizzle','Kysely','Knex','Sequelize','TypeORM','Docker','Kubernetes','Tailwind','shadcn','Material UI','Vitest','Jest','Playwright','Cypress','Zod','Pino','OpenTelemetry','S3','MinIO','Cloudflare R2','Meilisearch','Elasticsearch']
           for term in terms:
+            count=0
+            for p in canonical:
+              lines=p.read_text(encoding='utf-8',errors='replace').splitlines()
+              for i,line in enumerate(lines,1):
+                if term.lower() in line.lower():
+                  count+=1
+                  if count<=120: print('STACK_CONTEXT',term,f'{p}:{i}',line.strip())
+            if count: print('STACK_COUNT',term,count)
+
+          # Explicit ambiguity markers only; generic MAY/optional are normative RFC-style and not failures.
+          for term in ['TBD','TODO','to be decided','implementation choice','exact mechanism']:
             hits=[]
             for p in canonical:
-              txt=p.read_text(encoding='utf-8',errors='replace')
-              if term.lower() in txt.lower(): hits.append(str(p))
-            if hits: print('STACK_TERM',term,hits)
+              lines=p.read_text(encoding='utf-8',errors='replace').splitlines()
+              for i,line in enumerate(lines,1):
+                if term.lower() in line.lower(): hits.append((str(p),i,line.strip()))
+            print('AMBIGUITY',term,len(hits))
+            for h in hits[:100]: print('AMBIGUITY_CONTEXT',term,f'{h[0]}:{h[1]}',h[2])
 
-          # Ambiguity markers.
-          for term in ['TBD','TODO','to be decided','exact mechanism','if practical','may use','may be','optional']:
-            count=0; files=[]
-            for p in canonical:
-              txt=p.read_text(encoding='utf-8',errors='replace')
-              c=txt.lower().count(term.lower())
-              if c: count+=c; files.append(str(p))
-            print('AMBIGUITY_TERM',term,count,files[:50])
-
+          # Structural errors are blocking. Stale statuses/stack contexts are reviewed semantically in DOC-237.
           if dup or missing or broken:
             raise SystemExit('Structural documentation audit failed; see findings above')
           PY
