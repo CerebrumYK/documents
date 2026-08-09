@@ -1,0 +1,41 @@
+name: Canonical import transport probe
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/canonical-import-transport-probe.yml']
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download lossless PNG probe
+        run: |
+          curl -fsSL 'https://media.canva.com/v2/image-resize/format:PNG/height:100/quality:100/uri:ifs%3A%2F%2FM%2F84a162dc-0b96-4055-b8cd-39c993dae639/watermark:F/width:100?csig=AAAAAAAAAAAAAAAAAAAAAPJUuQSLM3X7R7ZT4uOYAYjMjzVbxquNM9D9Mq-CW8it&exp=1786294919&osig=AAAAAAAAAAAAAAAAAAAAAC45VNNvMyDL3akuMFELWPl9XuDOjLEHtURaTGhZMx-F&signer=media-rpc&x-canva-quality=thumbnail' -o /tmp/probe.png
+      - name: Verify decoded RGB payload SHA-256
+        run: |
+          python3 - <<'PY'
+          import struct,zlib,hashlib
+          p=open('/tmp/probe.png','rb').read(); assert p[:8]==b'\x89PNG\r\n\x1a\n'
+          pos=8; dat=b''; w=h=ct=None
+          while pos<len(p):
+            n=struct.unpack('>I',p[pos:pos+4])[0]; typ=p[pos+4:pos+8]; d=p[pos+8:pos+8+n]; pos += 12+n
+            if typ==b'IHDR': w,h,bd,ct,_,_,_=struct.unpack('>IIBBBBB',d); assert bd==8 and ct==2
+            elif typ==b'IDAT': dat += d
+            elif typ==b'IEND': break
+          raw=zlib.decompress(dat); stride=w*3; prev=bytearray(stride); out=bytearray(); off=0
+          for _ in range(h):
+            f=raw[off]; off+=1; row=bytearray(raw[off:off+stride]); off+=stride
+            for i in range(stride):
+              a=row[i-3] if i>=3 else 0; b=prev[i]; c=prev[i-3] if i>=3 else 0
+              if f==1: row[i]=(row[i]+a)&255
+              elif f==2: row[i]=(row[i]+b)&255
+              elif f==3: row[i]=(row[i]+((a+b)//2))&255
+              elif f==4:
+                q=a+b-c; pa=abs(q-a); pb=abs(q-b); pc=abs(q-c); pr=a if pa<=pb and pa<=pc else (b if pb<=pc else c)
+                row[i]=(row[i]+pr)&255
+              elif f!=0: raise ValueError(f'filter {f}')
+            out += row; prev=row
+          got=hashlib.sha256(out).hexdigest(); exp='b257adb98a1b6a5ee63f63939eacc1389061907f61b636f06899a19b0c8bfbad'
+          print('decoded bytes',len(out),'sha256',got); assert got==exp, (got,exp)
+          PY
