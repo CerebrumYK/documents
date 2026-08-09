@@ -1,0 +1,124 @@
+name: Documentation Quality
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/documentation-quality.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/documentation-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  documentation-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate canonical documentation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re, collections
+
+          canonical=[]
+          for p in Path('docs').rglob('*.md'):
+              sp=str(p)
+              if '/archive/' in sp or '/source-materials/' in sp:
+                  continue
+              canonical.append(p)
+
+          # Primary DOC IDs.
+          by=collections.defaultdict(list)
+          for p in canonical:
+              head='\n'.join(p.read_text(encoding='utf-8',errors='replace').splitlines()[:80])
+              m=(re.search(r'\*\*(?:Документ|Document):\*\*\s*DOC-(\d{3})\b',head,re.I)
+                 or re.search(r'^##\s+DOC-(\d{3})\b',head,re.M))
+              if m:
+                  by[int(m.group(1))].append(str(p))
+
+          duplicates={k:v for k,v in by.items() if len(v)>1}
+          expected={1,2,3}
+          for a,b in [
+              (10,15),(20,30),(40,50),(60,64),(70,80),(90,94),(100,103),
+              (110,134),(140,146),(150,156),(160,165),(170,182),(190,196),
+              (200,208),(220,225),(230,237)
+          ]:
+              expected.update(range(a,b+1))
+          missing=sorted(expected-set(by))
+
+          # Relative Markdown links.
+          broken=[]
+          linkre=re.compile(r'\[[^\]]*\]\(([^)]+)\)')
+          for p in canonical+[Path('README.md')]:
+              if not p.exists():
+                  continue
+              for raw in linkre.findall(p.read_text(encoding='utf-8',errors='replace')):
+                  target=raw.strip().split('#',1)[0].strip()
+                  if not target or target.startswith(('http://','https://','mailto:','tel:','#')):
+                      continue
+                  target=target.split(' ',1)[0].strip('<>')
+                  if not (p.parent/target).resolve().exists():
+                      broken.append((str(p),raw))
+
+          # Stale aliases are prohibited as active references. DOC-237 may quote historical findings.
+          aliases=['database-schema.md','visibility-model.md','validation-rules.md','deletion-retention.md','docs/domain/relationships.md','docs/domain/revisions.md']
+          alias_hits=[]
+          for p in canonical:
+              if str(p)=='docs/final/enterprise-consistency-audit.md':
+                  continue
+              txt=p.read_text(encoding='utf-8',errors='replace')
+              for a in aliases:
+                  if a in txt:
+                      alias_hits.append((str(p),a))
+
+          # Current audit/status files cannot regress to pre-import claims.
+          stale=[]
+          for p in [Path('docs/final/documentation-audit.md'),Path('docs/final/gap-analysis.md'),Path('docs/final/final-traceability.md')]:
+              txt=p.read_text(encoding='utf-8',errors='replace').lower()
+              for term in ['expected_not_imported','not yet present in this repository','still require import','incomplete until earlier doc-001…134']:
+                  if term in txt:
+                      stale.append((str(p),term))
+
+          # Required Enterprise bindings.
+          required_files=[
+              'docs/implementation/unified-technology-stack.md',
+              'docs/github/codex-enterprise-implementation-pass.md',
+              'docs/final/enterprise-consistency-audit.md',
+          ]
+          missing_files=[p for p in required_files if not Path(p).exists()]
+
+          req=Path('docs/requirements/functional-requirements.md').read_text(encoding='utf-8')
+          ac=Path('docs/requirements/acceptance-criteria.md').read_text(encoding='utf-8')
+          idx=Path('docs/final/documentation-index.md').read_text(encoding='utf-8')
+          bindings=[]
+          if 'FR-ENT-001' not in req or 'FR-ENT-010' not in req: bindings.append('FR-ENT range')
+          if 'AC-MASTER-111' not in ac or 'AC-MASTER-120' not in ac: bindings.append('AC-MASTER-111..120')
+          for token in ['DOC-208','DOC-225','DOC-237']:
+              if token not in idx: bindings.append(f'index {token}')
+
+          print('canonical_markdown',len(canonical))
+          print('primary_doc_ids',len(by))
+          print('duplicates',duplicates)
+          print('missing_ids',missing)
+          print('broken_links',broken)
+          print('stale_aliases',alias_hits)
+          print('stale_status',stale)
+          print('missing_files',missing_files)
+          print('missing_bindings',bindings)
+
+          assert not duplicates
+          assert not missing
+          assert not broken
+          assert not alias_hits
+          assert not stale
+          assert not missing_files
+          assert not bindings
+          PY
