@@ -1,0 +1,120 @@
+name: Canonical import status reconciliation
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/canonical-import-reconcile.yml']
+permissions:
+  contents: write
+jobs:
+  reconcile:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Reconcile active status documents
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          def rw(path, fn):
+            p=Path(path); s=p.read_text(encoding='utf-8'); n=fn(s); assert n!=s, f'no change: {path}'; p.write_text(n,encoding='utf-8')
+          # DOC-002
+          def readme(s):
+            s=s.replace('The package materially resolves the previous “source not available” gap for DOC-001…134, but it does not by itself make those canonical files physically imported into this repository and it does not prove implementation.', 'The source gap and canonical-import gap for DOC-001…134 are now resolved: all canonical files are physically present at governed paths. This still does not prove application implementation.')
+            s=s.replace('The earlier DOC-001…134 source package is now **available and mapped**, while canonical per-file Git import/reconciliation remains a separate documentation task unless those target paths are already present.', 'DOC-001 and DOC-010…134 are now **canonically imported and physically present**. Their implementation baseline remains `NOT_IMPLEMENTED_AS_SPECIFIED` until application evidence proves otherwise.')
+            return s
+          rw('docs/README.md',readme)
+          # DOC-207
+          def ist(s):
+            s=s.replace('| DOC-001 | Source available in supplied package | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-001 | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-010…015 Product | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-010…015 Product | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-020…030 Journey/automation | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-020…030 Journey/automation | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-040…050 UX | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-040…050 UX | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-060…064 Domain | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-060…064 Domain | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-070…080 Architecture | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-070…080 Architecture | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-090…094 Database | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-090…094 Database | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-100…103 API | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-100…103 API | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            s=s.replace('| DOC-110…134 Modules | Source available | NOT_IMPLEMENTED_AS_SPECIFIED |','| DOC-110…134 Modules | PRESENT / canonical specification imported | NOT_IMPLEMENTED_AS_SPECIFIED |')
+            return s
+          rw('docs/implementation/implementation-status.md',ist)
+          # source manifest
+          def manifest(s):
+            s=s.replace('**Purpose:** source/provenance mapping only — **not implementation evidence**.', '**Canonical import status:** COMPLETE — DOC-001 and DOC-010…134 are physically present at governed canonical paths.  \n**Purpose:** source/provenance mapping — **not implementation evidence**.')
+            s=s.replace('| DOC-010 | `product-overwiev-2.md` | `docs/product/product-overview.md` | `09fa6ed19992` |','| DOC-010 | `PRODUCT OVERVIEW.md` | `docs/product/product-overview.md` | source preserved in canonical import |')
+            s=s.replace('- `PRODUCT OVERVIEW.md` and `product-overwiev-2.md` are alternate versions; the manifest selects `product-overwiev-2.md` as the richer candidate, but semantic review is still required at canonical import.', '- `PRODUCT OVERVIEW.md` is the canonical DOC-010 source. `product-overwiev-2.md` is retained only under raw provenance; normalized semantic comparison found formatting-level differences rather than a competing product doctrine.')
+            s=s.replace('## Implementation warning', '## Canonical import result\n\n- 79 canonical DOC files imported.\n- 10 unmatched/supporting source files retained under `docs/source-materials/kate-site-package/raw/`.\n- `FORMS AND VALIDATION (1).md` remains provenance only; no duplicate canonical DOC-046 exists.\n- Approved canonical path overrides were applied during import.\n\n## Implementation warning')
+            return s
+          rw('docs/source-materials/kate-site-package-manifest.md',manifest)
+          # DOC-234 index
+          def idx(s):
+            s=s.replace('SOURCE_PACKAGE_AVAILABLE','PRESENT')
+            s=s.replace('Important: `PRESENT` does not mean the canonical target file has already been committed to this repository.', 'All listed DOC-001…134 canonical target files are now committed and PRESENT. `PRESENT` still does not mean implemented.')
+            s=s.replace('1. Canonical per-file import/reconciliation of source DOC-001…134 is still pending unless a target file is already present.\n2. Actual actor-site application repository has not been proven by `kate-site.zip`; implementation status remains evidence-gated.\n3. Universal interface source is verified, but consuming-project integration is not yet verified.\n4. Runtime/browser/provider/production evidence must be collected during implementation and release.', '1. Actual actor-site application repository has not been proven by `kate-site.zip`; implementation status remains evidence-gated.\n2. Universal interface source is verified, but consuming-project integration is not yet verified.\n3. Runtime/browser/provider/production evidence must be collected during implementation and release.')
+            s=s.replace('DOC-235 docs/final/source-package-and-implementation-audit.md','DOC-235 docs/final/source-package-and-implementation-audit.md\nDOC-236 docs/final/canonical-import-verification.md')
+            s=s.replace('DOC-235 is the current status addendum after receiving `kate-site.zip` and verifying the universal interface source. It supersedes stale *status facts* in DOC-230/231/234 but does not supersede owning product/domain requirements.', 'DOC-236 is the current repository-presence authority after canonical import. DOC-235 remains the source/implementation audit; neither supersedes owning product/domain requirements.')
+            return s
+          rw('docs/final/documentation-index.md',idx)
+          # DOC-235
+          def aud235(s):
+            s=s.replace('original/source specification package available;\ncanonical Git import/reconciliation still pending for individual source files unless their canonical path already exists.', 'original/source specification package available;\ncanonical Git import/reconciliation COMPLETE for DOC-001 and DOC-010…134.')
+            s=re.sub(r'### Still open: canonical source import\n\n.*?\n\n### Still open: actual application audit', '### Resolved: canonical source import\n\nAll 79 canonical DOC targets are physically imported at governed paths; 10 unmatched/supporting files remain under raw provenance. The canonical-import gap is closed.\n\n### Still open: actual application audit', s, flags=re.S)
+            s=s.replace('4. source-package manifest;\n5. DOC-235 — current source/implementation audit;\n6. updated documentation entry/index.', '4. source-package manifest;\n5. DOC-235 — source/implementation audit;\n6. DOC-236 — canonical import verification;\n7. updated documentation entry/index.')
+            s=s.replace('The documentation source gap is now materially reduced: the original specification package exists and is mapped. The implementation gap is not reduced by that fact.', 'The documentation source and canonical-import gaps are resolved: the original specification package is mapped and DOC-001/DOC-010…134 are physically present. The implementation gap is not reduced by that fact.')
+            return s
+          rw('docs/final/source-package-and-implementation-audit.md',aud235)
+          # historical status docs: preserve content, add explicit supersession note
+          note='> **Repository-presence status note (2026-08-09):** statements in this historical audit about DOC-001…134 being unavailable/not imported are superseded by DOC-236 `docs/final/canonical-import-verification.md`. Canonical import is complete; implementation remains evidence-gated.\n\n'
+          for f in ['docs/final/documentation-audit.md','docs/final/gap-analysis.md','docs/final/final-traceability.md']:
+            p=Path(f); s=p.read_text(encoding='utf-8')
+            if 'Repository-presence status note (2026-08-09)' not in s:
+              m=re.search(r'^#.*\n',s)
+              s=s[:m.end()]+'\n'+note+s[m.end():] if m else note+s
+              p.write_text(s,encoding='utf-8')
+          # Governance: imported-owner wording
+          p=Path('docs/governance.md'); s=p.read_text(encoding='utf-8')
+          s=s.replace('Once imported, these detailed documents override generic summaries where wording differs in specificity but not security.', 'These detailed documents are now canonically imported and override generic summaries where wording differs in specificity but not security.')
+          p.write_text(s,encoding='utf-8')
+          # DOC-236
+          Path('docs/final/canonical-import-verification.md').write_text('''# CANONICAL IMPORT VERIFICATION\n## DOC-236 — completion record for DOC-001 and DOC-010…134 canonical import\n\n**Status:** COMPLETE / Canonical repository-presence authority  \n**Date:** 2026-08-09\n\n## 1. Result\n\nCanonical import from the supplied `kate-site.zip` is complete.\n\n```text\n79 canonical DOC files  → PRESENT\n10 supporting/raw files → provenance archive\ncanonical import gap    → RESOLVED\napplication implementation gap → OPEN / evidence-gated\n```\n\n## 2. Imported canonical ranges\n\n- DOC-001\n- DOC-010…015 Product\n- DOC-020…030 Customer Journey / Automation\n- DOC-040…050 UX\n- DOC-060…064 Domain\n- DOC-070…080 Architecture\n- DOC-090…094 Database\n- DOC-100…103 API\n- DOC-110…134 Modules\n\nAll use governed canonical paths from DOC-003 and DOC-234.\n\n## 3. Integrity / provenance\n\nSource package SHA-256:\n\n`5ad6757df46b0fdc7608f068b78b4ef442e9d04b8f56e61adf11b052aeee4ec0`\n\nCanonical transport bundle BZ2 SHA-256:\n\n`1bd7aac292e8a373b0623989340b670ffe5a1288d7d4b25e8f59ae2363a32c93`\n\nThe import workflow verified every transport part and the complete bundle before extraction.\n\n## 4. Reconciliation decisions\n\n- DOC-010 uses `PRODUCT OVERVIEW.md`; typo variant `product-overwiev-2.md` is provenance only.\n- DOC-046 uses one canonical `FORMS AND VALIDATION.md`; byte-identical `(1)` duplicate is provenance only.\n- approved path overrides for Domain/Architecture/Database/API were applied.\n- 10 unmatched/supporting files are preserved under `docs/source-materials/kate-site-package/raw/`.\n- each imported canonical DOC explicitly distinguishes documentation completion from implementation status.\n\n## 5. Implementation status\n\nCanonical presence does **not** upgrade implementation.\n\n```text\nDOCUMENTED / PRESENT\n≠ IMPLEMENTED\n≠ VERIFIED\n```\n\nDOC-001 and DOC-010…134 remain `NOT_IMPLEMENTED_AS_SPECIFIED` unless the actual application repository provides code/migration/test/runtime evidence under DOC-207.\n\n## 6. Remaining gaps\n\nThe documentation-import gap is closed. Remaining work is implementation evidence and delivery work, including Phase-0 audit of the real application repository, migrations, tests, runtime/browser evidence, provider reconciliation, deployment and the consuming-project integration of the pinned interface system where applicable.\n\n## 7. Acceptance criteria\n\n`AC-IMP236-001` All 79 canonical DOC targets are physically present.  \n`AC-IMP236-002` Canonical path overrides are applied.  \n`AC-IMP236-003` No duplicate canonical DOC-046 exists.  \n`AC-IMP236-004` DOC-010 canonical source selection is explicit.  \n`AC-IMP236-005` Supporting source files retain provenance without becoming competing canonical docs.  \n`AC-IMP236-006` Documentation completion remains separate from implementation/verification.  \n`AC-IMP236-007` DOC-230/231/232 stale repository-presence facts are superseded by this verification record.\n\n## 8. Final doctrine\n\n> **The documentation repository is now canonically complete for DOC-001 and DOC-010…134. From this point forward, “missing documentation import” is not an implementation excuse: remaining status changes must be proven in the actual application code, migrations, tests, runtime and provider/deployment evidence.**\n''',encoding='utf-8')
+          # Root README status note, preserving existing content
+          p=Path('README.md'); s=p.read_text(encoding='utf-8')
+          if 'Canonical DOC-001…134 import: COMPLETE' not in s:
+            m=re.search(r'^#.*\n',s); insert='\n> **Canonical DOC-001…134 import: COMPLETE (2026-08-09).** See `docs/final/canonical-import-verification.md` (DOC-236). Documentation presence does not imply application implementation.\n\n'
+            s=s[:m.end()]+insert+s[m.end():] if m else insert+s
+            p.write_text(s,encoding='utf-8')
+          PY
+      - name: Validate status and repository completeness
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          expected=['docs/TZ.md']
+          expected += [f'docs/product/{x}' for x in ['product-overview.md','terminology.md','business-rules.md','information-architecture.md','scope.md','product-principles.md']]
+          # Canonical import itself already asserted 79 status banners; verify again from repository state.
+          imported=[]
+          for p in Path('docs').rglob('*'):
+            if p.is_file():
+              try: s=p.read_text(encoding='utf-8')
+              except UnicodeDecodeError: continue
+              if 'canonical imported specification' in s: imported.append(str(p))
+          assert len(imported)==79,len(imported)
+          assert Path('docs/final/canonical-import-verification.md').is_file()
+          assert not Path('docs/database/database-schema.md').exists()
+          assert not Path('docs/domain/domain-relationships.md').exists()
+          assert not Path('docs/architecture/media-architecture.md').exists()
+          assert 'NOT_IMPLEMENTED_AS_SPECIFIED' in Path('docs/implementation/implementation-status.md').read_text()
+          raw=list(Path('docs/source-materials/kate-site-package/raw').rglob('*')); raw=[p for p in raw if p.is_file()]; assert len(raw)==10,len(raw)
+          print('canonical docs',len(imported),'raw provenance',len(raw))
+          PY
+      - name: Commit reconciliation and remove workflow
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/canonical-import-reconcile.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs README.md .github/workflows/canonical-import-reconcile.yml
+          git commit -m 'docs: reconcile canonical import status and close documentation gap'
+          git push origin HEAD:${{ github.head_ref }}
