@@ -26,7 +26,7 @@ BLOCKED
 DEFERRED_NON_BASELINE
 ```
 
-There is no current `EXPECTED_NOT_IMPORTED` canonical status.
+The legacy pre-import repository-status category has been retired; all canonical owner documents are present.
 
 ---
 

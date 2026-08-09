@@ -229,4 +229,4 @@ Forbidden:
 
 ## Canonical toolchain binding
 
-DOC-208 resolves generic implementation choices: Zod is the runtime schema layer; Pino is the structured logger; OpenTelemetry is the telemetry API/SDK; pnpm is the package manager; ESLint + Prettier are the lint/format baseline; Vitest and Playwright are the canonical automated test frameworks. Equivalent examples in older documents do not authorize a parallel production toolchain.
+DOC-208 resolves generic technology alternatives: Zod is the runtime schema layer; Pino is the structured logger; OpenTelemetry is the telemetry API/SDK; pnpm is the package manager; ESLint + Prettier are the lint/format baseline; Vitest and Playwright are the canonical automated test frameworks. Equivalent examples in older documents do not authorize a parallel production toolchain.
