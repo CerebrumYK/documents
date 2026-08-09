@@ -73,7 +73,7 @@ Social → DOC-133
 Achievements → DOC-134
 ```
 
-Once imported, these detailed documents override generic summaries where wording differs in specificity but not security.
+These detailed documents are now canonically imported and override generic summaries where wording differs in specificity but not security.
 
 ## Level 3 — Domain / Architecture / Database / API contracts
 

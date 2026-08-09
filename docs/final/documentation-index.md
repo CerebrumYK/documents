@@ -14,7 +14,7 @@ Do not collapse these dimensions:
 
 ```text
 PRESENT
-SOURCE_PACKAGE_AVAILABLE
+PRESENT
 ARCHIVED_SOURCE
 NOT_AVAILABLE
 ```
@@ -44,7 +44,7 @@ See DOC-207.
 
 | DOC | Path | Repository status |
 |---|---|---|
-| DOC-001 | `docs/TZ.md` | SOURCE_PACKAGE_AVAILABLE (`TZ/Master-TZ.txt`) |
+| DOC-001 | `docs/TZ.md` | PRESENT (`TZ/Master-TZ.txt`) |
 | DOC-002 | `docs/README.md` | PRESENT |
 | DOC-003 | `docs/governance.md` | PRESENT |
 
@@ -56,20 +56,20 @@ The supplied `kate-site.zip` provides mapped sources for:
 
 | DOC range | Family | Source status | Implementation baseline |
 |---|---|---|---|
-| DOC-010…015 | Product | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-020…030 | Customer Journey / Automation | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-040…050 | UX | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-060…064 | Domain | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-070…080 | Architecture | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-090…094 | Database | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-100…103 | API | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
-| DOC-110…134 | Modules | SOURCE_PACKAGE_AVAILABLE | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-010…015 | Product | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-020…030 | Customer Journey / Automation | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-040…050 | UX | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-060…064 | Domain | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-070…080 | Architecture | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-090…094 | Database | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-100…103 | API | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
+| DOC-110…134 | Modules | PRESENT | NOT_IMPLEMENTED_AS_SPECIFIED |
 
 Exact source filenames, hashes and corrected canonical target paths:
 
 [`../source-materials/kate-site-package-manifest.md`](../source-materials/kate-site-package-manifest.md)
 
-Important: `SOURCE_PACKAGE_AVAILABLE` does not mean the canonical target file has already been committed to this repository.
+All listed DOC-001…134 canonical target files are now committed and PRESENT. `PRESENT` still does not mean implemented.
 
 ---
 
@@ -201,9 +201,10 @@ DOC-232 docs/final/final-traceability.md
 DOC-233 docs/final/final-technical-specification.md
 DOC-234 docs/final/documentation-index.md
 DOC-235 docs/final/source-package-and-implementation-audit.md
+DOC-236 docs/final/canonical-import-verification.md
 ```
 
-DOC-235 is the current status addendum after receiving `kate-site.zip` and verifying the universal interface source. It supersedes stale *status facts* in DOC-230/231/234 but does not supersede owning product/domain requirements.
+DOC-236 is the current repository-presence authority after canonical import. DOC-235 remains the source/implementation audit; neither supersedes owning product/domain requirements.
 
 ---
 
@@ -284,10 +285,9 @@ DOC-207
 
 ## 16. Current gaps
 
-1. Canonical per-file import/reconciliation of source DOC-001…134 is still pending unless a target file is already present.
-2. Actual actor-site application repository has not been proven by `kate-site.zip`; implementation status remains evidence-gated.
-3. Universal interface source is verified, but consuming-project integration is not yet verified.
-4. Runtime/browser/provider/production evidence must be collected during implementation and release.
+1. Actual actor-site application repository has not been proven by `kate-site.zip`; implementation status remains evidence-gated.
+2. Universal interface source is verified, but consuming-project integration is not yet verified.
+3. Runtime/browser/provider/production evidence must be collected during implementation and release.
 
 ---
 

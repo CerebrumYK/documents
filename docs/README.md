@@ -64,7 +64,7 @@ SHA-256 5ad6757df46b0fdc7608f068b78b4ef442e9d04b8f56e61adf11b052aeee4ec0
 90 archive entries
 ```
 
-The package materially resolves the previous “source not available” gap for DOC-001…134, but it does not by itself make those canonical files physically imported into this repository and it does not prove implementation.
+The source gap and canonical-import gap for DOC-001…134 are now resolved: all canonical files are physically present at governed paths. This still does not prove application implementation.
 
 ---
 
@@ -155,7 +155,7 @@ historical source archive
 source-package manifest
 ```
 
-The earlier DOC-001…134 source package is now **available and mapped**, while canonical per-file Git import/reconciliation remains a separate documentation task unless those target paths are already present.
+DOC-001 and DOC-010…134 are now **canonically imported and physically present**. Their implementation baseline remains `NOT_IMPLEMENTED_AS_SPECIFIED` until application evidence proves otherwise.
 
 ---
 

@@ -4,7 +4,8 @@
 **SHA-256:** `5ad6757df46b0fdc7608f068b78b4ef442e9d04b8f56e61adf11b052aeee4ec0`  
 **Size:** 5,230,272 bytes  
 **Archive entries:** 90  
-**Purpose:** source/provenance mapping only — **not implementation evidence**.
+**Canonical import status:** COMPLETE — DOC-001 and DOC-010…134 are physically present at governed canonical paths.  
+**Purpose:** source/provenance mapping — **not implementation evidence**.
 
 ## Status rule
 
@@ -17,7 +18,7 @@ Every file below is a specification source. Until actual application evidence pr
 | DOC | Source in `kate-site.zip` | Canonical target | SHA256 (12) |
 |---|---|---|---|
 | DOC-001 | `TZ/Master-TZ.txt` | `docs/TZ.md` | `9af941f53022` |
-| DOC-010 | `product-overwiev-2.md` | `docs/product/product-overview.md` | `09fa6ed19992` |
+| DOC-010 | `PRODUCT OVERVIEW.md` | `docs/product/product-overview.md` | source preserved in canonical import |
 | DOC-011 | `TERMINOLOGY.md` | `docs/product/terminology.md` | `8f3b6ea0857b` |
 | DOC-012 | `business-rules.md` | `docs/product/business-rules.md` | `4e4f1ca36758` |
 | DOC-013 | `information-architecture.md` | `docs/product/information-architecture.md` | `771dd88b55f8` |
@@ -99,13 +100,20 @@ Every file below is a specification source. Until actual application evidence pr
 ## Duplicate/legacy notes
 
 - `FORMS AND VALIDATION (1).md` is byte-identical to `FORMS AND VALIDATION.md`; do not import both.
-- `PRODUCT OVERVIEW.md` and `product-overwiev-2.md` are alternate versions; the manifest selects `product-overwiev-2.md` as the richer candidate, but semantic review is still required at canonical import.
+- `PRODUCT OVERVIEW.md` is the canonical DOC-010 source. `product-overwiev-2.md` is retained only under raw provenance; normalized semantic comparison found formatting-level differences rather than a competing product doctrine.
 - `master-documentation-plan.md` is a planning/meta source, not DOC-001; DOC-001 source is `TZ/Master-TZ.txt`.
 - Other `TZ/*.txt` files are supporting specification fragments and should remain provenance material unless intentionally reconciled into an owning canonical DOC.
 
 ## Canonical path overrides
 
 The manifest intentionally uses project-governance canonical paths instead of stale source filenames for DOC-061, DOC-064, DOC-074, DOC-075, DOC-077…080, DOC-090…094 and DOC-100…103.
+
+## Canonical import result
+
+- 79 canonical DOC files imported.
+- 10 unmatched/supporting source files retained under `docs/source-materials/kate-site-package/raw/`.
+- `FORMS AND VALIDATION (1).md` remains provenance only; no duplicate canonical DOC-046 exists.
+- Approved canonical path overrides were applied during import.
 
 ## Implementation warning
 

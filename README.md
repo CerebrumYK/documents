@@ -1,5 +1,8 @@
 # Actress Website Documentation
 
+> **Canonical DOC-001…134 import: COMPLETE (2026-08-09).** See `docs/final/canonical-import-verification.md` (DOC-236). Documentation presence does not imply application implementation.
+
+
 Нормативная документация проекта **«Сайт актрисы»**.
 
 Основная точка входа: [`docs/README.md`](docs/README.md).

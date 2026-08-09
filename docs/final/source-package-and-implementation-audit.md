@@ -113,7 +113,7 @@ to:
 
 ```text
 original/source specification package available;
-canonical Git import/reconciliation still pending for individual source files unless their canonical path already exists.
+canonical Git import/reconciliation COMPLETE for DOC-001 and DOC-010…134.
 ```
 
 ---
@@ -221,9 +221,9 @@ Any UI recommendation conflicting with these is rejected.
 
 Source package for DOC-001…134 is now available and mapped.
 
-### Still open: canonical source import
+### Resolved: canonical source import
 
-The full source package is not automatically considered canonical merely because it was supplied. Each source should be imported to its corrected canonical path without retaining duplicate/stale aliases.
+All 79 canonical DOC targets are physically imported at governed paths; 10 unmatched/supporting files remain under raw provenance. The canonical-import gap is closed.
 
 ### Still open: actual application audit
 
@@ -245,8 +245,9 @@ This audit adds/updates the documentation model with:
 2. DOC-207 — Implementation Status Register;
 3. DOC-224 — Codex Interface System Integration;
 4. source-package manifest;
-5. DOC-235 — current source/implementation audit;
-6. updated documentation entry/index.
+5. DOC-235 — source/implementation audit;
+6. DOC-236 — canonical import verification;
+7. updated documentation entry/index.
 
 ---
 
@@ -279,4 +280,4 @@ No row becomes VERIFIED without applicable evidence.
 
 ## 13. Финальная доктрина
 
-> **The documentation source gap is now materially reduced: the original specification package exists and is mapped. The implementation gap is not reduced by that fact. The next meaningful implementation status change can only come from auditing and changing the actual actor-site application repository, while the pinned universal interface system supplies the required UI development/review process.**
+> **The documentation source and canonical-import gaps are resolved: the original specification package is mapped and DOC-001/DOC-010…134 are physically present. The implementation gap is not reduced by that fact. The next meaningful implementation status change can only come from auditing and changing the actual actor-site application repository, while the pinned universal interface system supplies the required UI development/review process.**
