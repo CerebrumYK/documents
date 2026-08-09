@@ -1,3 +1,4 @@
+# Persistent canonical documentation gate
 name: Documentation Quality
 
 on:
