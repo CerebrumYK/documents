@@ -112,12 +112,12 @@ Status: **RESOLVED**.
 Examples included:
 
 ```text
-docs/domain/relationships.md
-docs/domain/revisions.md
-database-schema.md
-visibility-model.md
-validation-rules.md
-deletion-retention.md
+docs/domain/entity-relationships.md
+docs/domain/revisions-and-history.md
+database-architecture.md
+visibility-and-access.md
+validation-and-constraints.md
+deletion-and-retention.md
 ```
 
 These conflicted with governed canonical paths.
